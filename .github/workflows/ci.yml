@@ -1,0 +1,17 @@
+name: verify-gate-demo
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install numpy
+        run: pip install numpy
+      - name: Run the companion-gate demo (fails if the invariant breaks)
+        run: python examples/synthetic_gate_demo/gate_demo.py
