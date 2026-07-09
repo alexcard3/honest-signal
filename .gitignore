@@ -1,0 +1,23 @@
+# Safety: never publish secrets or infra — defensive denylist for a public repo
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+kubeconfig
+*kubeconfig*
+.kube/
+secrets/
+*secret*
+*.credentials
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
