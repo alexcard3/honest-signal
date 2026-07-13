@@ -9,7 +9,7 @@
 
 ## EN — What this is
 
-Over three years of trying to find a tradable edge in financial markets, we found none that survives costs out-of-sample — and we **certified** 16 dead hypotheses (plus a 17th still under review) instead of quietly dropping them. Along the way we built something more valuable than any edge: a **method for keeping AI-assisted research honest**, so that an agent (or a human) cannot fool themselves — or you — into believing a result that isn't there.
+Over three years of trying to find a tradable edge in financial markets, we found none that survives costs out-of-sample — and we **certified** 16 dead hypotheses (plus a 17th and an 18th still under review) instead of quietly dropping them. Along the way we built something more valuable than any edge: a **method for keeping AI-assisted research honest**, so that an agent (or a human) cannot fool themselves — or you — into believing a result that isn't there.
 
 This repo ships that method. Four mechanisms, one runnable demo, and an incident log of the time the method caught a fabrication in our own pipeline.
 
@@ -54,7 +54,7 @@ Contributions, replications, and adversarial critique are welcome — the whole 
 
 ## IT — Cos'è
 
-In tre anni di ricerca di un edge di mercato tradabile non ne abbiamo trovato uno che sopravviva ai costi fuori campione — e abbiamo **certificato 16 ipotesi morte** (più una 17ª ancora in revisione) invece di abbandonarle in silenzio. Nel farlo abbiamo costruito qualcosa di più prezioso di qualunque edge: un **metodo per mantenere onesta la ricerca assistita da AI**, così che un agente (o un umano) non possa auto-ingannarsi — né ingannare te — credendo a un risultato che non c'è.
+In tre anni di ricerca di un edge di mercato tradabile non ne abbiamo trovato uno che sopravviva ai costi fuori campione — e abbiamo **certificato 16 ipotesi morte** (più una 17ª e una 18ª ancora in revisione) invece di abbandonarle in silenzio. Nel farlo abbiamo costruito qualcosa di più prezioso di qualunque edge: un **metodo per mantenere onesta la ricerca assistita da AI**, così che un agente (o un umano) non possa auto-ingannarsi — né ingannare te — credendo a un risultato che non c'è.
 
 Questo repo spedisce quel metodo: quattro meccanismi, una demo eseguibile, e il log della volta in cui il metodo ha beccato una fabbricazione nella nostra stessa pipeline.
 
