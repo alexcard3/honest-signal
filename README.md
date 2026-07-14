@@ -5,6 +5,22 @@
 > The system can be the best in the world, but if no one knows it, it's worth nothing.
 > So this repository is not a trading edge. It's a *method*, shipped in the open.
 
+[![proof of precedence — our own tool, run on our own history](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/alexcard3/honest-signal/main/audit/badge.json)](audit/report.txt)
+
+**That red badge is not a broken build.** It is our own tool, run on our own history, reporting how
+many of our eighteen falsifications carry a pre-registration commit that **provably came first**. It
+fails us far more often than it passes us. The number in it is *emitted* by
+[`scripts/audit_history.py`](scripts/audit_history.py) into [`audit/badge.json`](audit/badge.json) —
+**we do not type it**, because a badge with a hand-written number is an assertion wearing the costume
+of a machine verdict.
+
+**A second number is worse, and it is deliberately not in the badge.** Only **3 of the 18** went
+through the *full* protocol, companion gate included. **No machine can check that one** — the
+companion gate is a fact about process, not a property of a repository — so **it is our word**, and
+we mark it as our word every time we write it. What a machine proves goes in the badge; what rests on
+our word stays in prose. **We never merge the two into one figure**, and we publish both. That is the
+entire point.
+
 ---
 
 ## Quickstart — ten minutes
@@ -93,6 +109,68 @@ nothing depends on is not a gate; it is a log line.**
 
 ---
 
+## Verify this yourself
+
+**Don't trust us. Here are the commands** — including the ones that make us look worse.
+
+**1. Watch the gate refuse a fabrication (30s).**
+```bash
+cd examples/synthetic_gate_demo && python gate_demo.py     # needs numpy
+```
+
+**2. Run the gate on *your* repository, where you can check it.**
+```bash
+pip install pyyaml
+python firewall.py verify                  # every claim, against your own git record
+python firewall.py preregister P-MY-1      # it refuses to commit a criterion with no number in it
+```
+
+**3. Run our test-suite — the four ways the gate *must* fail.**
+```bash
+python -m unittest discover -s tests -v
+```
+These tests **pass**. What they assert is that the gate goes red when a pre-registration is missing,
+late, edited, or vacuous. A green suite here means the failures are enforced, not absent.
+
+**4. Check that our own pre-registration came first — in this public repository.**
+```bash
+git log --diff-filter=A --oneline -- preregistrations/P-TOOL-1.md     # -> d82e6f8
+```
+That is the commit that introduced [`P-TOOL-1`](preregistrations/P-TOOL-1.md), **before the first line
+of the tool it gates was written**. Edit that file today and the `firewall` check on this repository
+turns red — rule (c), applied to us.
+
+**5. Recompute the verdict on us.** P-TOOL-1 says we get killed on **2026-09-08** unless someone
+outside our account installs this. All three metrics are public data, and the queries are ours:
+```bash
+# M1 - external workflows referencing the Action (GitHub code search):
+#      "alexcard3/honest-signal" path:.github/workflows      -> count owners that are not alexcard3
+# M2 - forks carrying their own commits:
+gh api repos/alexcard3/honest-signal/forks --paginate
+gh api repos/alexcard3/honest-signal/compare/alexcard3:main...OWNER:main --jq .ahead_by
+# M3 - substantive issues/PRs from accounts that are not ours:
+gh api repos/alexcard3/honest-signal/issues --state all --paginate --jq '.[].user.login'
+```
+Stars do not count. Plain forks do not count. **We said so before the fact**, so that we cannot reach
+for them afterwards.
+
+**6. Check the evidence for the worst thing we have published about ourselves.**
+```bash
+git rev-parse v0.3          # -> fe30d96...
+```
+`v0.3` shipped a gate that **enforced nothing** — it ran, it went red, and a pull request could have
+merged straight over it ([`incident-log.md`](incident-log.md), Entry 3). We **left the tag where it
+is**: moving it would have erased the only physical evidence. The tag is the receipt.
+
+**What you cannot verify, and we will not pretend otherwise.** The badge number comes from
+[`scripts/audit_history.py`](scripts/audit_history.py) run against our **private** research history —
+so it cannot run in public CI, and **you cannot re-run it**. What you *can* check is that the badge
+agrees with the raw output we commit ([`audit/report.txt`](audit/report.txt)) and with the row-by-row
+table in [`FALSIFICATIONS.md`](FALSIFICATIONS.md). Machine-**produced** is not the same as externally
+machine-**verifiable**, and we are not going to let a green tick blur the difference.
+
+---
+
 ## EN — What this is
 
 honest-signal is a **method for keeping AI-assisted research honest** — so that an agent (or a human) cannot fool itself, or you, into believing a result that isn't there. It ships as five mechanisms, one runnable demo, an incident log of the time the method caught a fabrication in our own pipeline, and a full index of every hypothesis it killed.
@@ -108,7 +186,13 @@ We built it because we needed it. Three years of searching for a tradable edge i
 
 That independent recompute is the moat. It already caught a real fabrication (see [`incident-log.md`](incident-log.md)).
 
-### Who this is for, and what you get
+### How do I know my AI agent actually did what it says?
+
+You don't — not from its report, and not from how confident it sounds. That is the problem this
+repository addresses, and the answer it gives is structural: **the agent that produced a number is
+never the one that certifies it.** A second, independent agent recomputes the decisive number from the
+raw data, with its own code. A fabrication and an honest bug fail the same check, because the check
+judges *reproducibility, not intent* — so you never have to assess anyone's good faith.
 
 **If you run AI agents whose results you then act on** — research, analysis, backtests, anything where an agent reports a number and you decide something because of it — you have the problem this repo addresses: an agent can report a check that never ran, and be entirely convincing while doing it. Ours did. It is [Entry 0](incident-log.md).
 
@@ -121,12 +205,36 @@ What you get:
 
 No performance claims, here or anywhere in this repo. Nothing in it will make your research succeed. It makes your failures visible — sooner, and more cheaply than the alternative.
 
+### My backtest has a Sharpe of 2.5 — is it real?
+
+Probably not, and our own eighteen say where it most likely dies. Every dead hypothesis in
+[`FALSIFICATIONS.md`](FALSIFICATIONS.md) is tagged with the first gate it failed — **G0** (was there a
+gross edge at all?), **G1** (bad prints), **G2** (the cost wall), **G3** (the tax wall) — and the
+finding contradicted our own comfortable story: **G0 accounts for ~13–14 of the 18.** The dominant
+killer is not the walls. It is the **absence of an edge to defend**.
+
+So before you blame costs, answer the question we had to answer: **did the gross edge ever beat buy &
+hold, risk-adjusted?** Usually it did not — it was beta in disguise, out-of-sample decay, or an edge
+living inside a bar you cannot trade.
+
+### What does a pre-registration look like?
+
+Like [`preregistrations/P-TOOL-1.md`](preregistrations/P-TOOL-1.md) — the one that gates *this
+release*, and predicts our own failure. Start from [`preregistrations/TEMPLATE.md`](preregistrations/TEMPLATE.md),
+or let the tool scaffold it: `python firewall.py preregister P-MY-1`. It will refuse to commit until
+you have written a kill criterion **with a number in it**, a way to measure that number **a stranger
+could follow**, and a **date**. A question you cannot answer is the tool telling you that you do not
+have a hypothesis yet.
+
 ### How to navigate
 
 - [`METHOD.md`](METHOD.md) — the five mechanisms, in full.
 - [`FALSIFICATIONS.md`](FALSIFICATIONS.md) — every hypothesis we killed: what was tested, what was committed before the data, what killed it.
+- [`GLOSSARY.md`](GLOSSARY.md) — the named concepts, each with its prior art and our actual delta. Naming is not claiming invention, and the file says whose each idea was.
 - [`firewall.py`](firewall.py) — the gate, as software. One file, stdlib plus PyYAML.
 - [`preregistrations/`](preregistrations/) — the template, and the pre-registration of this release.
+- [`audit/`](audit/) — the badge number and the raw output of the run that produced it.
+- [`CITATION.cff`](CITATION.cff) — machine-readable attribution, if you cite this.
 - [`examples/blocked-pr/`](examples/blocked-pr/) — a pull request the gate refused, kept in the record.
 - [`examples/synthetic_gate_demo/`](examples/synthetic_gate_demo/) — the runnable, dependency-light proof.
 - [`incident-log.md`](incident-log.md) — the fabrication the gate caught, the time the method caught our own overstated claim, and the four defects we found in the gate itself.
@@ -146,8 +254,16 @@ There is a small, deliberate symmetry there worth naming: the line you paste int
 measurement and the artifact are the same object, so we cannot quietly move one without moving the
 other.
 
-### Honest limits (v0.3)
+### Honest limits (v0.4)
 
+- **The gate covers exactly one claim, and we would rather tell you than let you assume.**
+  [`firewall.py`](firewall.py) scans `preregistrations/` and `results/`. `results/` does not exist, and
+  `preregistrations/` holds one pre-registration: [`P-TOOL-1`](preregistrations/P-TOOL-1.md). So
+  `PREREGISTRATION.md` — **P-PUB-1, the pre-registration of the publication itself, with its own kill
+  date** — sits *outside* the gate's coverage. Its proof of precedence exists, but in a private
+  repository's commit: not unfounded, **not checkable by the public tool**. This is the same class of
+  defect as Entry 3 — *a gate not attached to the thing you assumed it guarded* — and we do not get to
+  find it and stay quiet about it.
 - **The firewall compiles. The moat does not — and it cannot.** Mechanism #1 (pre-registration) is a
   property of the git history, so a program can enforce it, and now one does, on every pull request
   here. Mechanism #2 — the independent byte-exact recompute, the one we call the moat — is a fact
@@ -166,6 +282,33 @@ other.
 - Where we stand relative to prior work is stated openly in `METHOD.md`; we position this as a contribution *inside* an existing lineage (López de Prado on backtest overfitting; the registered-reports / replication movement; the 2026 wave of anti-fabrication harnesses for AI agents) — a part we find under-served, not a lone discovery.
 - **Proof-of-precedence is partial, and we now say by how much.** Of the 18 hypotheses in [`FALSIFICATIONS.md`](FALSIFICATIONS.md), **4** have a pre-registration commit that provably precedes the data, **2** carry prediction and verdict in the same commit, and **12** were pre-registered off-repo in files we never versioned. The firewall enters the git record on 2026-06-25; everything before that rests on our word. And all those commits live in private repositories — you see a hash, not a proof. We list the state of every row rather than average it away.
 - **The protocol exactly as advertised — both mechanisms, end-to-end — has three complete applications** (rows 14, 17, 18; all after 2026-06-25). It is what we run *now*, on everything. It is not what we can retroactively claim for all eighteen, and we would rather tell you that than have you work it out from our own table. A young protocol, dated precisely, is credible; a backdated one is not.
+
+- **v0.4 changed the artifact under test — after `P-TOOL-1` was registered.** This release adds a
+  glossary, a citation file, a contact line and this section: it makes the repository more legible, and
+  it was written *after* the pre-registration that measures whether anyone adopts it. What it did **not**
+  touch is the pre-registration itself — the metrics, the thresholds, the kill date and the escape
+  hatches we disallowed are all unchanged, and rule (c) means we *cannot* change them without turning
+  our own CI red. What follows is a limit we state now rather than discover conveniently later: the
+  seven changes shipped as one bundle, so **no outcome of `P-TOOL-1` can be attributed to any single one
+  of them.** If someone installs the Action, we will not get to say the glossary did it.
+
+## Contact
+
+I do this work — building the discipline that keeps AI-assisted research, and the agents that do it,
+from fooling the people who rely on the result. **If your team ships agents whose claims you cannot
+check, write to me: honest-signal@cardurani.dev.**
+
+Critique, replication, and *"here is where your gate fails"* are the most useful things you can send.
+**So far, the only person who has done that to us is us:** [Entry 2](incident-log.md) is the gate
+itself, found broken twice *before* release — by running it on ourselves, not by the test suite, which
+stayed green throughout. **This inbox is new, and it is empty.** If you break something here, it gets
+its own entry, with your name on it.
+
+> **Please don't open a GitHub issue merely to say hello.** Not because it is unwelcome, but because
+> [`P-TOOL-1`](preregistrations/P-TOOL-1.md) counts substantive issues from outside accounts as
+> evidence that the tool was *adopted* — and a courtesy issue would push our own measurement toward the
+> answer that flatters us. A pre-registration you can contaminate with good manners is one we would
+> have to throw away. Email is out of band; use it.
 
 ## License
 
@@ -270,7 +413,16 @@ Cosa ti dà: (1) un **protocollo che non permette mai a un agente di certificare
 
 Nessun claim di performance, qui né altrove in questo repo. Niente di tutto ciò farà riuscire la tua ricerca: rende visibili i suoi fallimenti, prima e a costo minore.
 
-### Limiti onesti (v0.3)
+### Limiti onesti (v0.4)
+
+**Il gate copre esattamente UNA claim, e preferiamo dirtelo che lasciartelo presumere.**
+[`firewall.py`](firewall.py) scansiona `preregistrations/` e `results/`: `results/` **non esiste** e
+`preregistrations/` contiene una sola pre-registrazione ([`P-TOOL-1`](preregistrations/P-TOOL-1.md)).
+Quindi `PREREGISTRATION.md` — **P-PUB-1, la pre-registrazione della pubblicazione stessa, con la sua
+kill-date** — è **fuori dalla copertura del gate**. La sua prova-di-precedenza esiste, ma vive nel
+commit di un repo **privato**: non è infondata, è **non verificabile dal tool pubblico**. È la stessa
+classe della Entry 3 — *un gate non attaccato a ciò che credevi custodisse* — e non abbiamo il diritto
+di scoprirla e tacerla.
 
 **Il firewall compila. Il fossato no — e non può.** Il meccanismo #1 (pre-registrazione) è una
 proprietà della storia git: un programma lo può imporre, e ora lo fa a ogni PR. Il meccanismo #2 — il
@@ -299,6 +451,36 @@ Questo è il **metodo**, non una scoperta di mercato (i nostri reperti cartograf
 
 **Il protocollo esattamente come lo pubblicizziamo — entrambi i meccanismi, end-to-end — ha tre applicazioni complete** (righe 14, 17, 18; tutte dopo il 2026-06-25). È ciò che eseguiamo **ora**, su tutto. Non è ciò che possiamo rivendicare retroattivamente sulle diciotto, e preferiamo dirtelo noi piuttosto che lasciartelo ricavare dalla nostra stessa tabella. Un protocollo giovane e datato con precisione è credibile; uno retrodatato no.
 
+**La v0.4 ha cambiato l'artefatto sotto test — dopo la registrazione di `P-TOOL-1`.** Questa release
+aggiunge glossario, file di citazione, riga di contatto e questa sezione: rende il repository più
+leggibile, ed è stata scritta *dopo* la pre-registrazione che misura se qualcuno lo adotta. Ciò che
+**non** ha toccato è la pre-registrazione stessa: metriche, soglie, kill-date e vie di fuga vietate sono
+invariate — e la regola (c) fa sì che **non possiamo** cambiarle senza far diventare rossa la nostra CI.
+Il limite lo dichiariamo ora invece di scoprirlo comodamente dopo: i sette interventi spediscono in
+**un unico bundle**, quindi **nessun esito di `P-TOOL-1` sarà attribuibile a uno solo di essi**. Se
+qualcuno installerà l'Action, non potremo dire *«è stato il glossario»*.
+
+### Contatto
+
+Faccio questo lavoro: costruisco la disciplina che impedisce alla ricerca assistita da AI — e agli
+agenti che la eseguono — di ingannare chi poi sul risultato ci decide qualcosa. **Se il tuo team spedisce
+agenti i cui claim non puoi verificare, scrivimi: honest-signal@cardurani.dev.**
+
+Critiche, repliche e *«ecco dove il tuo gate fallisce»* sono la cosa più utile che puoi mandarmi.
+**Finora l'unico che l'ha fatto a noi siamo noi:** la [Entry 2](incident-log.md) è il gate stesso,
+trovato rotto due volte *prima* della release — facendolo girare su di noi, non dal test suite, che è
+rimasto verde per tutto il tempo. **Questa casella è nuova, ed è vuota.** Se rompi qualcosa qui, si
+guadagna la sua entry, col tuo nome sopra.
+
+> **Per favore non aprire una issue GitHub solo per salutare.** Non perché sia sgradito, ma perché
+> [`P-TOOL-1`](preregistrations/P-TOOL-1.md) conta le issue sostanziali da account esterni come **prova
+> che il tool è stato adottato**: una issue di cortesia spingerebbe la nostra stessa misura verso la
+> risposta che ci lusinga. Una pre-registrazione che si può inquinare con la buona educazione è una
+> pre-registrazione da buttare. L'email è **fuori banda**: usa quella.
+
 ### Licenza
 
 Codice: [MIT](LICENSE). Contenuti/docs: CC-BY-4.0 (usa liberamente con attribuzione). Contributi, repliche e critica avversariale sono benvenuti — il punto è esattamente il giudizio esterno.
+
+Concetti battezzati, con la loro *prior art* e il nostro delta reale: [`GLOSSARY.md`](GLOSSARY.md).
+Attribuzione machine-readable: [`CITATION.cff`](CITATION.cff).

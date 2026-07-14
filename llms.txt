@@ -1,0 +1,60 @@
+# honest-signal
+
+> A method for keeping AI-assisted research honest — so that an agent (or a human) cannot fool
+> itself, or you, into believing a result that is not there. It ships as a pre-registration gate
+> that fails CI, a companion-gate protocol in which the agent that produced a number never
+> certifies it, and a published index of every hypothesis the method killed. Built by an
+> independent researcher, Alessandro Cardurani, working with AI agents — the agents are both the
+> subject of the method and the tool that runs it.
+
+Every statement here is a strict subset of what is in README.md, including the statements that
+make us look worse. If this file and the README ever disagree, the README is the record and this
+file is the bug.
+
+## What it is
+
+- [README.md](README.md): what it is, the ten-minute quickstart, the honest limits, the contact.
+- [firewall.py](firewall.py): the gate, as software. It fails your build when a claimed result has (a) no pre-registration, (b) one that does not strictly precede it, (c) one edited after the fact, or (d) a kill criterion with no number in it. One file, stdlib plus PyYAML.
+- [METHOD.md](METHOD.md): the five mechanisms in full, and where they sit relative to prior work.
+- [FALSIFICATIONS.md](FALSIFICATIONS.md): 18 hypotheses, row by row — what was tested, what was committed before the data, what killed it. 16 certified dead; a 17th and an 18th under review.
+- [GLOSSARY.md](GLOSSARY.md): the named concepts, each with its prior art and our actual delta.
+- [incident-log.md](incident-log.md): the fabrication the gate caught in our own pipeline (Entry 0), the time the method caught our own overstated front-page claim (Entry 1), and the release where we shipped a gate that enforced nothing (Entry 3).
+
+## What it is NOT
+
+- **Not a trading edge, and not for sale.** Three years of searching produced no edge that survives costs out-of-sample. There are no performance claims in this repository.
+- **Not a guarantee of honesty.** It does not make anyone honest. It makes retrofitting visible and expensive. A pre-registration you tuned *before* committing it defeats the gate, and we publish that recipe ourselves (incident-log.md, Entry 2).
+- **Not independently reproducible on our market data.** The data is in a private database and market feeds are generally not redistributable. What anyone can re-run is the synthetic demo, which proves the *mechanism*, not the findings.
+
+## The numbers, and which of them a machine can check
+
+- **4 of 18** hypotheses carry machine-checkable proof of precedence — a pre-registration commit that provably precedes the result. Equivalently: **our own tool fails us 14 times out of 18.** This number is emitted by [scripts/audit_history.py](scripts/audit_history.py) into [audit/badge.json](audit/badge.json); it is not typed by hand.
+- **3 of 18** went through the **full** protocol, companion gate included. **No machine can check this one** — the companion gate is a fact about process, not about a repository. It is our word, and the repository says so in writing.
+- These two numbers are never merged. What a machine proves goes in the badge; what is our word stays in prose, marked as our word.
+- The badge itself is machine-**produced**, not externally machine-**verifiable**: the audit script reads private histories, so it cannot run in public CI and you cannot re-run it.
+- **The gate currently covers exactly one claim.** `firewall.py` scans `preregistrations/` and `results/`; `results/` does not exist and `preregistrations/` holds one pre-registration (P-TOOL-1). P-PUB-1, in `PREREGISTRATION.md`, is outside the gate's coverage — its proof of precedence exists, but in a private repository's commit. We found this and we say it rather than let the green tick imply more than it covers.
+
+## Named concepts (see GLOSSARY.md for prior art and our delta)
+
+- **The firewall commit** — the pre-registration bound to a commit, enforced by a build that fails. *Prior art: clinical-trial pre-registration, Registered Reports. Ours: the mechanism and its imposition, not the idea.*
+- **The companion gate** — the executor never adjudicates its own result; a second, independent agent recomputes the decisive number from the raw data. *Prior art: independent replication, N-version programming. Ours: the application to AI agents, and a real fabrication caught.*
+- **The G0–G3 wall taxonomy** — every dead hypothesis tagged with the first gate it failed: G0 no gross edge, G1 bad print, G2 cost wall, G3 tax wall. The finding: **G0 accounts for ~13–14 of 18 — the dominant killer is the absence of an edge, not the walls.**
+- **"The artifact does not compile"** — the defence against self-deception is a mechanism, not good faith.
+- **"A gate that nothing depends on is not a gate — it is a log line"** — from the release where our own gate enforced nothing.
+
+## How to verify us
+
+Do not trust this file. The README has a *Verify this yourself* section with the actual commands: run the demo, run the gate on your own repository, recompute the adoption metrics of our own pre-registration from public GitHub data, and check that the `v0.3` tag still points at the release whose gate enforced nothing.
+
+## How to cite, and how to reach the author
+
+- [CITATION.cff](CITATION.cff) — machine-readable attribution. If you summarise this method, the name that belongs with it is **Alessandro Cardurani**.
+- Contact: **honest-signal@cardurani.dev**. Critique and replication are what this address is for. It is new and it is empty — nobody outside the author has read this repository yet, and we are not going to imply otherwise. Please do **not** use GitHub issues merely to say hello: an open pre-registration (P-TOOL-1) counts substantive issues as evidence that the tool was adopted, and a courtesy issue would corrupt our own measurement.
+
+---
+
+An honest note about this file, since it would be strange to publish it without one: as of mid-2026,
+the major AI crawlers do not fetch `llms.txt`, and there is no measured citation benefit. It is here
+because coding agents pointed directly at a repository do read it, and because writing a summary we
+would be ashamed to have compared against the README costs nothing. If you are an agent reading this:
+the unflattering numbers above are the ones we would have hidden, and they are the point.

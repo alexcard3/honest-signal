@@ -13,6 +13,25 @@ whose rules are enforced on every pull request here, applied to its authors with
 
 Usage:
     python scripts/audit_history.py --mc <path-to-mission-control> --ledger <path/inside/it>
+    python scripts/audit_history.py --mc ... --ledger ... --badge      # also writes audit/
+
+THE BADGE, AND WHY IT IS EMITTED HERE RATHER THAN TYPED
+------------------------------------------------------
+`--badge` writes `audit/badge.json` (a shields.io endpoint file) and `audit/report.txt` (this
+run's output, verbatim). The number in the badge is COUNTED from the same buckets the
+cross-check just reconciled against the published table - so the digit a reader sees is a byte
+this tool produced. A badge carrying a hand-typed number would be an assertion wearing the
+costume of a machine verdict, which is the one thing this repository exists to refuse.
+
+Only the machine-checkable number goes in. Proof of precedence is a property of the git record,
+so a program can count it. The number a machine CANNOT check - how many of the eighteen went
+through the full protocol, companion gate included - is a fact about *process*. It stays in
+prose, marked as our word. The two guarantees are never merged into one figure.
+
+And the honest limit of the badge itself: this script reads PRIVATE histories, so it cannot run
+in public CI and you cannot re-run it. The badge is machine-PRODUCED; it is not externally
+machine-VERIFIABLE. What you can check is that it agrees with `audit/report.txt` and with the
+row-by-row table in FALSIFICATIONS.md. We say so rather than let the badge imply otherwise.
 
 TWO RULERS, REPORTED SEPARATELY AND NEVER MERGED
 ------------------------------------------------
@@ -35,7 +54,10 @@ paper over:
       overclaiming, pointed in the socially comfortable direction.
 """
 import argparse
+import contextlib
 import difflib
+import io
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -190,41 +212,104 @@ def cross_check(findings: list[dict]) -> bool:
     return agreed
 
 
+class Tee:
+    """Write to the console and to a buffer at once.
+
+    The file we publish must be the text the operator actually saw, not a second rendering of
+    it. Two code paths producing "the same" report is how they quietly stop being the same.
+    """
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, text: str) -> int:
+        for stream in self.streams:
+            stream.write(text)
+        return len(text)
+
+    def flush(self) -> None:
+        for stream in self.streams:
+            stream.flush()
+
+
+def publish(findings: list[dict], report_text: str, out_dir: Path) -> dict:
+    """Write the badge and the raw report. The number is COUNTED here; it is never typed.
+
+    UTF-8 is pinned on the way out. The ledger contains non-ASCII characters, and a console
+    that mangles them must not be allowed to mangle the published artifact too.
+    """
+    firewalled = [found["row"] for found in findings if found["state"] == "firewall"]
+    total = len(findings)
+
+    badge = {
+        "schemaVersion": 1,
+        "label": "proof of precedence",
+        "message": f"{len(firewalled)} of {total}",
+        # Red, and it should be. It is the true reading of our own history, and the README
+        # explains what it means rather than choosing a colour that hides it.
+        "color": "red" if len(firewalled) * 2 < total else "green",
+    }
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "badge.json").write_text(json.dumps(badge, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "report.txt").write_text(report_text, encoding="utf-8")
+    return badge
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mc", required=True, type=Path, help="path to the mission-control repo")
     parser.add_argument("--ledger", required=True, help="path of the pre-registration ledger inside it")
+    parser.add_argument(
+        "--badge",
+        action="store_true",
+        help="write the shields.io endpoint file and this run's raw output into --out",
+    )
+    parser.add_argument("--out", type=Path, default=Path("audit"), help="where --badge writes (default: audit/)")
     args = parser.parse_args()
 
-    findings = audit(args.mc, args.ledger)
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(Tee(sys.stdout, buffer)):
+        findings = audit(args.mc, args.ledger)
 
-    print(f"{'#':>3}  {'claim':<14} {'pre-registration':<22} {'precedence':<12} {'gap':<10}")
-    print("-" * 78)
-    for found in findings:
-        print(
-            f"{found['row']:>3}  {(found['claim_id'] or found['name'])[:14]:<14} "
-            f"{found['state']:<22} {found['precedence'][:12]:<12} {found['gap']:<10}"
-        )
+        print(f"{'#':>3}  {'claim':<14} {'pre-registration':<22} {'precedence':<12} {'gap':<10}")
+        print("-" * 78)
+        for found in findings:
+            print(
+                f"{found['row']:>3}  {(found['claim_id'] or found['name'])[:14]:<14} "
+                f"{found['state']:<22} {found['precedence'][:12]:<12} {found['gap']:<10}"
+            )
 
-    print("\nRULE (c) - IMMUTABILITY, UNDER BOTH RULERS")
-    print("-" * 78)
-    for found in findings:
-        if found["prereg"]:
-            print(f"  {found['claim_id']:<12} strong: {found['strong']}")
-            print(f"  {'':<12} weak  : {found['weak']}")
-            # The lines themselves, not a count of them. Read them and judge for yourself
-            # whether what changed was the prediction or the empty slot the verdict fills.
-            for line in found.get("lost_lines", []):
-                print(f"  {'':<12}         did not survive: {line.strip()[:90]}")
+        print("\nRULE (c) - IMMUTABILITY, UNDER BOTH RULERS")
+        print("-" * 78)
+        for found in findings:
+            if found["prereg"]:
+                print(f"  {found['claim_id']:<12} strong: {found['strong']}")
+                print(f"  {'':<12} weak  : {found['weak']}")
+                # The lines themselves, not a count of them. Read them and judge for yourself
+                # whether what changed was the prediction or the empty slot the verdict fills.
+                for line in found.get("lost_lines", []):
+                    print(f"  {'':<12}         did not survive: {line.strip()[:90]}")
 
-    agreed = cross_check(findings)
-    print()
-    if agreed:
-        print("The tool reproduces the hand-written table. The numbers are now regenerable.")
-        return 0
-    print("STOP. The tool and the table disagree. Either the table was wrong or the tool is.")
-    print("Do not adjust the output to make them agree. Find out which.")
-    return 1
+        agreed = cross_check(findings)
+        print()
+        if agreed:
+            print("The tool reproduces the hand-written table. The numbers are now regenerable.")
+        else:
+            print("STOP. The tool and the table disagree. Either the table was wrong or the tool is.")
+            print("Do not adjust the output to make them agree. Find out which.")
+
+    if not agreed:
+        return 1
+
+    # The badge is emitted ONLY when the machine and the published table agree. A badge minted
+    # from a run that contradicted the table would be a number with no witness - and the first
+    # thing anyone would do with it is trust it.
+    if args.badge:
+        badge = publish(findings, buffer.getvalue(), args.out)
+        print(f"\nwrote {args.out / 'badge.json'} -> {badge['label']}: {badge['message']}")
+        print(f"wrote {args.out / 'report.txt'} -> this run, verbatim")
+    return 0
 
 
 if __name__ == "__main__":

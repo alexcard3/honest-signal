@@ -1,0 +1,57 @@
+  #  claim          pre-registration       precedence   gap       
+------------------------------------------------------------------------------
+  1  AutoCM cluster off-repo               -            -         
+  2  Lead-lag intra off-repo               -            -         
+  3  Shock-response off-repo               -            -         
+  4  Momentum walk- off-repo               -            -         
+  5  Signal-horizon off-repo               -            -         
+  6  Dispersion-reg off-repo               -            -         
+  7  Long-only unco off-repo               -            -         
+  8  Arc-closer (cr off-repo               -            -         
+  9  Raw equity mom off-repo               -            -         
+ 10  Defense overla off-repo               -            -         
+ 11  Regime-axis    off-repo               -            -         
+ 12  Gap-test weeke off-repo               -            -         
+ 13  P-VAL-1        same commit as verdict FAIL - predi -         
+ 14  P-WPROBE-1     firewall               PASS         61 min    
+ 15  P-CARRY-1      firewall               PASS         23 min    
+ 16  P-CARRY-2      same commit as verdict FAIL - predi -         
+ 17  P-SHOCK-1      firewall               PASS         71 min    
+ 18  P-CTSM-1       firewall               PASS         5.7 days  
+
+RULE (c) - IMMUTABILITY, UNDER BOTH RULERS
+------------------------------------------------------------------------------
+  P-VAL-1      strong: n/a - same commit
+               weak  : n/a - there is no interval in which the text could be edited
+  P-WPROBE-1   strong: n/a - shared ledger
+               weak  : MODIFIED - 3 registered lines did not survive verbatim
+                       did not survive: **Stato:** open
+                       did not survive: **Verificata il:** —
+                       did not survive: **Esito reale:** —
+  P-CARRY-1    strong: n/a - shared ledger
+               weak  : MODIFIED - 3 registered lines did not survive verbatim
+                       did not survive: **Stato:** open
+                       did not survive: **Verificata il:** —
+                       did not survive: **Esito reale:** —
+  P-CARRY-2    strong: n/a - same commit
+               weak  : n/a - there is no interval in which the text could be edited
+  P-SHOCK-1    strong: n/a - shared ledger
+               weak  : MODIFIED - 3 registered lines did not survive verbatim
+                       did not survive: **Stato:** open
+                       did not survive: **Verificata il:** —
+                       did not survive: **Esito reale:** —
+  P-CTSM-1     strong: n/a - shared ledger
+               weak  : MODIFIED - 1 registered lines did not survive verbatim
+                       did not survive: **Stato:** **open — PRE-run, nessuna posizione, nessun capitale.**
+
+==============================================================================
+CROSS-CHECK - the machine against the table we wrote by hand
+==============================================================================
+  firewall     hand: [14, 15, 17, 18]
+               tool: [14, 15, 17, 18]   -> agree
+  same_commit  hand: [13, 16]
+               tool: [13, 16]   -> agree
+  no_commit    hand: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+               tool: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]   -> agree
+
+The tool reproduces the hand-written table. The numbers are now regenerable.
