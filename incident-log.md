@@ -210,6 +210,67 @@ proof available that it will bind us when something is.
 
 ---
 
+## Entry 3 — the mechanism was in force. The enforcement was not.
+
+**When:** 2026-07-14, minutes after merging v0.3 — the release whose entire point is that a
+pre-registration gate now runs in CI.
+
+**What we claimed.** The README, `METHOD.md` and the pull request all said the same thing, in the
+present tense: *a pull request that claims a result without a valid, prior, unedited
+pre-registration **does not merge***. We had a gate. We had run it. We had watched it go red on a
+deliberately fabricated pull request, archived the log, and published the archive.
+
+**What the configuration said.**
+
+```
+required_status_checks.contexts = ["demo"]
+```
+
+The `firewall` job was **not a required check.** It ran on every pull request, computed the right
+answer, printed `exit 1` — and nothing depended on it. A pull request with the gate red could be
+merged into `main` by anyone, at any time. **Our headline claim was false at the level of the
+repository's own settings**, and it had been false for the entire release.
+
+The demonstration we were most proud of — [`examples/blocked-pr/`](examples/blocked-pr/) — was false
+in the same way, and more precisely. We wrote that the gate had **blocked** that pull request. It had
+not. The gate failed, and then **a human closed the pull request.** It was not blocked. It was merely
+red. The difference is the whole thesis.
+
+**How it surfaced: by luck.** Not a test, not a review, not the dogfooding. The merge of v0.3
+jammed — for an *unrelated* reason (giving the CI jobs friendly display names had silently detached
+the check context that branch protection referenced). While reading the protection rules to find out
+why, the required-checks list was there in the output, with one entry in it.
+
+Had that unrelated bug not existed, v0.3 would have merged cleanly and shipped a gate that enforced
+nothing, with a README stating that it did.
+
+**Why no test could have found it.** The code was correct. The tests were green. The gate ran in CI
+and produced the right verdict. The dogfooding passed. Every artifact we knew how to check was
+telling the truth about itself. The failure lived in the **one place none of them look**: whether
+anything downstream was listening.
+
+**And it is the fourth time.** Entry 0: an agent reported a check that never ran. Entry 1: humans
+claimed a rigour the record did not support. Entry 2: the gate itself was wrong in four ways.
+Entry 3: the gate was right, and switched off. Each time the same shape — **a mechanism that exists,
+and an enforcement that does not** — and each time we found it by looking at something else.
+
+> **A gate that nothing depends on is not a gate. It is a log line.**
+>
+> **Verify the enforcement, not the mechanism.** Ask the question that nobody asks of their own
+> guardrails: *what actually breaks if this fails?* If the honest answer is **"nothing"**, then you
+> do not have a gate. You have a green check mark and a false sentence in your README.
+
+**Resolution.** `required_status_checks.contexts` on `main` is now `["demo", "tests", "firewall"]`,
+re-read from the API rather than inferred from a command exiting 0. Check contexts are the job **ids**
+now, not their display names — an identifier is a contract, and prose is not. The blocked-pull-request
+demonstration was **run again**, against `main`, with the switch on: this time GitHub itself refused
+the merge (*"the base branch policy prohibits the merge"*), and that is
+[PR #6](https://github.com/alexcard3/honest-signal/pull/6). The old page was corrected in place, with
+the correction on top rather than the error quietly deleted. [PR #5](https://github.com/alexcard3/honest-signal/pull/5)
+stays in the record as what it actually was.
+
+---
+
 *New entries are appended here as they occur. A method that hides its own misses is
 not honest; this log is where honest-signal keeps itself honest.*
 
@@ -274,6 +335,39 @@ lasciato passare gli altri due. E l'attacco che **non** abbiamo chiuso, e che ne
 puoi sempre scrivere una pre-registrazione già accordata e committarla fresca, al path giusto, prima del
 risultato. Git non la distingue. **Nessun tool la distingue.** Ne pubblichiamo la ricetta invece di
 lasciartela scoprire: il gate rende il retrofitting visibile e costoso, non rende onesti.
+**Entry 3 (2026-07-14):** pochi minuti dopo aver mergiato la v0.3 — la release il cui punto è che il
+gate di pre-registrazione **gira in CI** — abbiamo scoperto che il gate **non era obbligatorio**.
+README, `METHOD.md` e la PR dicevano, al presente: *una PR che rivendica un risultato senza
+pre-registrazione valida, anteriore e non modificata **non mergia***. La configurazione diceva
+`required_status_checks.contexts = ["demo"]`: il job `firewall` girava su ogni PR, calcolava la
+risposta giusta, stampava `exit 1` — e **nulla dipendeva da lui**. Una PR col gate rosso poteva essere
+mergiata su `main` da chiunque. **Il nostro claim di testa era falso al livello delle impostazioni del
+repository stesso.** E la dimostrazione di cui andavamo più fieri (`examples/blocked-pr/`) era falsa
+allo stesso modo: avevamo scritto che il gate aveva **bloccato** quella PR — non l'aveva bloccata. Il
+gate ha fallito, e poi **un umano ha chiuso la PR**. Non bloccata: **soltanto rossa.** La differenza è
+l'intera tesi. **Come è emerso: per fortuna.** Non un test, non una review, non il dogfooding: il merge
+della v0.3 si è inceppato per una ragione *diversa* (aver dato ai job un `name:` descrittivo aveva
+sganciato in silenzio il contesto del check a cui la branch protection si riferiva), e leggendo le
+regole di protezione per capire perché, la lista dei check obbligatori era lì, con una sola voce dentro.
+Senza quel bug scorrelato, la v0.3 sarebbe passata pulita spedendo un gate che non imponeva niente, con
+un README che diceva il contrario. **Perché nessun test poteva trovarlo:** il codice era giusto, i test
+verdi, il gate girava in CI col verdetto corretto, il dogfooding passava. Ogni artefatto che sapevamo
+controllare diceva la verità su sé stesso. Il fallimento viveva nell'**unico posto in cui nessuno di
+essi guarda**: se a valle qualcuno stesse ascoltando. **Ed è la quarta volta**: Entry 0 = un agente ha
+riportato una verifica mai avvenuta; Entry 1 = gli umani hanno rivendicato un rigore che il record non
+sosteneva; Entry 2 = il gate stesso era sbagliato in quattro modi; Entry 3 = il gate era giusto, e
+spento. Ogni volta la stessa forma — **un meccanismo che esiste e un'imposizione che non esiste** — e
+ogni volta l'abbiamo trovata guardando altro. **Un gate da cui non dipende nulla non è un gate: è una
+riga di log. Verifica l'IMPOSIZIONE, non il meccanismo.** Fatti la domanda che nessuno fa ai propri
+guardrail: *cosa si rompe davvero se questo fallisce?* Se la risposta onesta è **"niente"**, non hai un
+gate: hai una spunta verde e una frase falsa nel README. **Correzione:** `contexts` su `main` ora è
+`["demo","tests","firewall"]`, **riletto dall'API** e non dedotto da un comando uscito 0; i contesti
+sono gli **id** dei job, non i loro nomi descrittivi (un identificatore è un contratto, la prosa no); e
+la dimostrazione è stata **rifatta** contro `main` con l'interruttore acceso — questa volta è **GitHub**
+a rifiutare il merge (*"the base branch policy prohibits the merge"*), ed è la
+[PR #6](https://github.com/alexcard3/honest-signal/pull/6). La pagina vecchia è corretta **in loco**,
+con la correzione in cima invece dell'errore cancellato in silenzio.
+
 **Coda — lo stesso pomeriggio il gate ha legato i propri autori, su una banalità, contro la loro
 volontà.** Volevamo cambiare il formato del frontmatter (YAML richiede un parser di terze parti; la
 stdlib di Python ne ha uno per TOML): una dipendenza in meno, un miglioramento cosmetico, deciso poche

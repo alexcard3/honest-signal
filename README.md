@@ -43,17 +43,24 @@ the tool telling you that you do not have a hypothesis yet.
   with:
     fetch-depth: 0            # NOT the default. Precedence is a fact about history,
                               # and a shallow clone does not have one.
-- uses: alexcard3/honest-signal@v0.3
+- uses: alexcard3/honest-signal@v0.3.1
 ```
 
 From now on, a pull request that claims a result **does not merge** unless a pre-registration for
 it exists, provably precedes it, has not been edited since, and names something that could have
 killed it.
 
-> **Why `@v0.3` and not `@main`?** Because `@main` is the most mutable reference there is: your CI
+> **Why a tag and not `@main`?** Because `@main` is the most mutable reference there is: your CI
 > would change under your feet every time we push. A repository whose entire thesis is *"the
 > artifact must not move after the fact"* does not get to ask you to depend on a moving branch. Pin
 > the tag, or pin the commit SHA.
+>
+> **And why `v0.3.1` rather than `v0.3`?** Because **`v0.3` is the release that shipped a gate that
+> enforced nothing.** The check ran, went red, and nothing depended on it — a pull request could
+> have merged straight over it. We found that by luck, minutes after publishing. **We left the tag
+> where it is.** Moving it would erase the only physical evidence for what
+> [`incident-log.md`](incident-log.md) Entry 3 says about us, and an unsubstantiated claim of our
+> own failure is still an unsubstantiated claim. `v0.3.1` is the same tool with the switch wired in.
 
 ### What it checks, and what it will never do
 
@@ -74,9 +81,15 @@ and innocent, before the result. Git cannot tell that apart from honesty. **Neit
 and neither can any other.** We publish the recipe in [`incident-log.md`](incident-log.md), Entry 2,
 rather than leave you to find it.
 
-**Want to watch it bite?** [PR #5](https://github.com/alexcard3/honest-signal/pull/5) claimed a
-tradeable edge with no pre-registration. CI went red, the pull request never merged, and we left it
-open in the record on purpose — [`examples/blocked-pr/`](examples/blocked-pr/).
+**Want to watch it bite?** [PR #6](https://github.com/alexcard3/honest-signal/pull/6) claimed a
+tradeable edge with no pre-registration. The gate failed and **GitHub refused the merge** — *"the base
+branch policy prohibits the merge"* — because `firewall` is a required status check here. We closed it
+and left it in the record on purpose: [`examples/blocked-pr/`](examples/blocked-pr/).
+
+The first time we ran that demonstration we got it wrong, and the correction is on the same page: the
+gate went red, but it was not *required*, so a human closed the pull request and we described it as
+having been blocked. It had not been. See [`incident-log.md`](incident-log.md), Entry 3 — **a gate that
+nothing depends on is not a gate; it is a log line.**
 
 ---
 
@@ -129,7 +142,7 @@ that we get killed** — the base rate for an unknown repository is zero, and sa
 cannot later be dressed up as *"we expected that anyway"*.
 
 There is a small, deliberate symmetry there worth naming: the line you paste into your workflow —
-`uses: alexcard3/honest-signal@v0.3` — **is the exact string the kill metric searches for**. The
+`uses: alexcard3/honest-signal@v0.3.1` — **is the exact string the kill metric searches for**. The
 measurement and the artifact are the same object, so we cannot quietly move one without moving the
 other.
 
@@ -207,17 +220,24 @@ dice che **non hai ancora un'ipotesi**.
   with:
     fetch-depth: 0            # NON è il default. La precedenza è un fatto sulla storia,
                               # e un clone shallow non ce l'ha.
-- uses: alexcard3/honest-signal@v0.3
+- uses: alexcard3/honest-signal@v0.3.1
 ```
 
 Da qui in poi, una PR che rivendica un risultato **non mergia** se non esiste una pre-registrazione
 che lo precede dimostrabilmente, non è stata modificata dopo, e nomina qualcosa che avrebbe potuto
 ucciderlo.
 
-> **Perché `@v0.3` e non `@main`?** Perché `@main` è il riferimento **più mutabile che esista**: la
+> **Perché un tag e non `@main`?** Perché `@main` è il riferimento **più mutabile che esista**: la
 > tua CI cambierebbe sotto i piedi a ogni nostro push. Un repository la cui tesi è *"l'artefatto non
 > deve muoversi dopo il fatto"* non può chiederti di dipendere da un branch mobile. Pinna il tag, o
 > pinna lo SHA.
+>
+> **E perché `v0.3.1` e non `v0.3`?** Perché **`v0.3` è la release che ha spedito un gate che non
+> imponeva niente.** Il check girava, diventava rosso, e nulla dipendeva da lui: una PR ci sarebbe
+> passata sopra. L'abbiamo scoperto per fortuna, pochi minuti dopo aver pubblicato. **Il tag l'abbiamo
+> lasciato dov'è:** spostarlo cancellerebbe l'unica prova fisica di ciò che la Entry 3 di
+> `incident-log.md` dice di noi — e un claim non sostanziato resta un claim non sostanziato anche
+> quando è un'accusa contro sé stessi. `v0.3.1` è lo stesso tool, con l'interruttore attaccato.
 
 **Cosa controlla:** (a) un risultato deve avere una pre-registrazione; (b) questa deve precederlo
 **strettamente** (stesso commit = FAIL); (c) non deve essere stata modificata dopo; (d) il criterio di
@@ -232,9 +252,15 @@ scrivere una pre-registrazione già accordata e committarla fresca, innocente, p
 non la distingue dall'onestà. **Nemmeno questo tool, e nemmeno nessun altro.** La ricetta la
 pubblichiamo noi (`incident-log.md`, Entry 2) invece di lasciartela scoprire.
 
-**Vuoi vederlo mordere?** [PR #5](https://github.com/alexcard3/honest-signal/pull/5) rivendicava un
-edge tradabile senza pre-registrazione: CI rossa, PR mai mergiata, lasciata apposta nel record
-([`examples/blocked-pr/`](examples/blocked-pr/)).
+**Vuoi vederlo mordere?** [PR #6](https://github.com/alexcard3/honest-signal/pull/6) rivendicava un
+edge tradabile senza pre-registrazione: il gate ha fallito e **GitHub ha rifiutato il merge** (*"the
+base branch policy prohibits the merge"*), perché qui `firewall` è un check **obbligatorio**. Chiusa e
+lasciata apposta nel record ([`examples/blocked-pr/`](examples/blocked-pr/)).
+
+La prima volta quella dimostrazione l'avevamo sbagliata, e la correzione sta sulla stessa pagina: il
+gate era rosso ma **non era obbligatorio**, quindi la PR l'ha chiusa un umano — e noi l'abbiamo
+raccontata come "bloccata". Non lo era. (`incident-log.md`, Entry 3: **un gate da cui non dipende nulla
+non è un gate, è una riga di log.**)
 
 ### A chi serve, e cosa ti dà
 
@@ -263,7 +289,7 @@ committata **prima della prima riga di codice del tool**): se al **2026-09-08** 
 referenzia l'Action, nessun fork porta commit propri e nessuna issue/PR sostanziale arriva da chi non
 siamo noi, la tesi "tool usabile" è debole e si riconsidera. Le star non contano, i fork-segnalibro non
 contano. **La nostra predizione pre-impegnata è che veniamo uccisi.** E c'è una simmetria voluta: la
-riga che incolli nel tuo workflow — `uses: alexcard3/honest-signal@v0.3` — **è esattamente la stringa
+riga che incolli nel tuo workflow — `uses: alexcard3/honest-signal@v0.3.1` — **è esattamente la stringa
 che la metrica di kill va a cercare.** Misura e artefatto sono lo stesso oggetto: non possiamo spostare
 l'una senza spostare l'altro.
 
