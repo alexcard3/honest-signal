@@ -61,7 +61,16 @@ killed it. The count of 16 stands; the claim that all 16 were verified with equa
 severity did not, and we graded it down rather than restate it — see
 [`incident-log.md`](incident-log.md), Entry 1.
 
-### 5. Substantiation as a gate
+### 5. Substantiation as a discipline (and why it is not a gate)
+> **This section used to be called "Substantiation as a gate". It was misnamed, and we renamed it
+> rather than let the name stand.** By our own rule — *a gate that nothing depends on is not a gate,
+> it is a log line* ([`incident-log.md`](incident-log.md), Entry 3) — this is not a gate: **nothing in
+> this repository fails when a claim is unsubstantiated.** No tool tells you *"you claimed sixteen —
+> now tabulate them."* It is a discipline we keep because it burned us once, not a mechanism we
+> enforce, and it is deliberately absent from [`GLOSSARY.md`](GLOSSARY.md) for exactly that reason —
+> see *What is deliberately not in this glossary*. If we ever build the thing that turns a build red on
+> an unsubstantiated claim, this heading gets its word back.
+
 **A claim you cannot tabulate row by row, with the evidence beside each row, is a claim
 you have not verified.** We learned this on ourselves. "16 falsifications, byte-exact"
 went unchallenged for as long as it stayed a *number* — including by us. The moment we
@@ -137,7 +146,7 @@ imparato nel modo duro: da questo metodo che ha beccato *noi*.
    d'occhi. `FALSIFICATIONS.md` dichiara, per tutte e diciotto, cosa le ha davvero
    verificate. Il conteggio di 16 regge; il claim che tutte e 16 fossero verificate con
    pari severità no — l'abbiamo graduato invece di ribadirlo (`incident-log.md`, Entry 1).
-5. **La sostanziazione come gate** — **un claim che non sai tabulare riga per riga, con
+5. **La sostanziazione come disciplina (e perché *non* è un gate)** — **un claim che non sai tabulare riga per riga, con
    l'evidenza accanto a ogni riga, è un claim che non hai verificato.** L'abbiamo imparato
    su di noi: "16 falsificazioni, byte-esatte" è rimasto incontestato finché è rimasto un
    *numero* — anche da parte nostra. Nel momento in cui abbiamo provato a costruire
@@ -147,6 +156,12 @@ imparato nel modo duro: da questo metodo che ha beccato *noi*.
    in cui ogni elemento deve portare la propria evidenza. **La tabella è il test.** Una
    cella vuota non è un problema di formattazione: è il claim che ti dice che non è mai
    stato verificato. Pubblica la cella vuota.
+   > **Questa sezione si chiamava "La sostanziazione come gate". Era un nome sbagliato, e
+   > l'abbiamo cambiato invece di lasciarlo in piedi.** Per la nostra stessa regola — *un gate da cui
+   > non dipende nulla non è un gate, è una riga di log* (`incident-log.md`, Entry 3) — questo **non è
+   > un gate: niente, in questo repository, fallisce quando un claim non è sostanziato.** È una
+   > disciplina che teniamo perché ci siamo bruciati una volta, non un meccanismo che imponiamo — ed è
+   > per questo che è **deliberatamente assente** da [`GLOSSARY.md`](GLOSSARY.md).
 
 **Determinismo:** seed/threading/percentile/RNG pinnati — la riproduzione byte-esatta
 ha senso solo se la pipeline è byte-stabile.

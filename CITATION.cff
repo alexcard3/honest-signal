@@ -1,0 +1,38 @@
+# Machine-readable attribution. GitHub renders this as "Cite this repository".
+#
+# It exists so that the name travels with the idea: a summary written by a human or by an
+# agent should be able to say where the method came from without having to guess.
+#
+# The credit claimed here is for the mechanisms and their enforcement, not for the ideas
+# underneath them - pre-registration, independent replication and backtest-overfitting
+# measurement are prior art, and GLOSSARY.md names whose they are, entry by entry.
+cff-version: 1.2.0
+message: "If you use this method, this tool, or a term from its glossary, please cite it as below."
+type: software
+title: "honest-signal"
+abstract: >-
+  A method for keeping AI-assisted research honest, shipped as software: a pre-registration
+  gate that fails CI when a claimed result has no pre-registration that provably preceded it,
+  a companion-gate protocol in which the agent that produced a number never certifies it, and
+  a published index of every hypothesis the method killed - including the rows where the
+  protocol turned out to be younger than our claims about it. It makes no performance claims.
+authors:
+  - family-names: "Cardurani"
+    given-names: "Alessandro"
+    email: "honest-signal@cardurani.dev"
+version: "0.4"
+date-released: "2026-07-14"
+license:
+  - MIT          # code: firewall.py, scripts/, examples/
+  - CC-BY-4.0    # content: README.md, METHOD.md, GLOSSARY.md, FALSIFICATIONS.md, incident-log.md
+repository-code: "https://github.com/alexcard3/honest-signal"
+url: "https://github.com/alexcard3/honest-signal"
+keywords:
+  - pre-registration
+  - falsification
+  - research integrity
+  - reproducibility
+  - AI agents
+  - anti-fabrication
+  - backtest overfitting
+  - continuous integration
