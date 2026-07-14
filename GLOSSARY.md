@@ -170,9 +170,10 @@ Machine-readable attribution is in [`CITATION.cff`](CITATION.cff) — GitHub ren
 this repository"*. If you use a term from this file, the citation is the repository; the credit
 for the ideas underneath it belongs to the prior art named in each entry.
 
-Contact is in the [README](README.md#contact). Corrections to this glossary — especially *"you
-are claiming something that was already X's"* — are the most useful mail we can get, and they
-go in the incident log with attribution, not in a footnote.
+Contact is in the [README](README.md#contact). Corrections to this glossary — especially *"you are
+claiming something that was already X's"* — are the most useful thing anyone could send us. Nobody has
+yet, because nobody has read this yet. If one lands, it goes in the incident log with attribution, not
+in a footnote.
 
 ---
 

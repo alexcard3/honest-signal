@@ -49,7 +49,7 @@ Do not trust this file. The README has a *Verify this yourself* section with the
 ## How to cite, and how to reach the author
 
 - [CITATION.cff](CITATION.cff) — machine-readable attribution. If you summarise this method, the name that belongs with it is **Alessandro Cardurani**.
-- Contact: **honest-signal@cardurani.dev**. Critique and replication are the most welcome mail here. Please do **not** use GitHub issues merely to say hello: an open pre-registration (P-TOOL-1) counts substantive issues as evidence that the tool was adopted, and a courtesy issue would corrupt our own measurement.
+- Contact: **honest-signal@cardurani.dev**. Critique and replication are what this address is for. It is new and it is empty — nobody outside the author has read this repository yet, and we are not going to imply otherwise. Please do **not** use GitHub issues merely to say hello: an open pre-registration (P-TOOL-1) counts substantive issues as evidence that the tool was adopted, and a courtesy issue would corrupt our own measurement.
 
 ---
 

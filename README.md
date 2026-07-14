@@ -298,8 +298,11 @@ I do this work — building the discipline that keeps AI-assisted research, and 
 from fooling the people who rely on the result. **If your team ships agents whose claims you cannot
 check, write to me: honest-signal@cardurani.dev.**
 
-Critique, replications, and *"here is where your gate fails"* are the most useful mail I get — the
-last one arrived as [Entry 2](incident-log.md), and it is in the repository with its own section.
+Critique, replication, and *"here is where your gate fails"* are the most useful things you can send.
+**So far, the only person who has done that to us is us:** [Entry 2](incident-log.md) is the gate
+itself, found broken twice *before* release — by running it on ourselves, not by the test suite, which
+stayed green throughout. **This inbox is new, and it is empty.** If you break something here, it gets
+its own entry, with your name on it.
 
 > **Please don't open a GitHub issue merely to say hello.** Not because it is unwelcome, but because
 > [`P-TOOL-1`](preregistrations/P-TOOL-1.md) counts substantive issues from outside accounts as
@@ -463,8 +466,11 @@ Faccio questo lavoro: costruisco la disciplina che impedisce alla ricerca assist
 agenti che la eseguono — di ingannare chi poi sul risultato ci decide qualcosa. **Se il tuo team spedisce
 agenti i cui claim non puoi verificare, scrivimi: honest-signal@cardurani.dev.**
 
-Critiche, repliche e *«ecco dove il tuo gate fallisce»* sono la posta più utile che ricevo — l'ultima è
-diventata la [Entry 2](incident-log.md), con una sezione tutta sua nel repository.
+Critiche, repliche e *«ecco dove il tuo gate fallisce»* sono la cosa più utile che puoi mandarmi.
+**Finora l'unico che l'ha fatto a noi siamo noi:** la [Entry 2](incident-log.md) è il gate stesso,
+trovato rotto due volte *prima* della release — facendolo girare su di noi, non dal test suite, che è
+rimasto verde per tutto il tempo. **Questa casella è nuova, ed è vuota.** Se rompi qualcosa qui, si
+guadagna la sua entry, col tuo nome sopra.
 
 > **Per favore non aprire una issue GitHub solo per salutare.** Non perché sia sgradito, ma perché
 > [`P-TOOL-1`](preregistrations/P-TOOL-1.md) conta le issue sostanziali da account esterni come **prova
