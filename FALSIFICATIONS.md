@@ -171,9 +171,23 @@ everything else here is:
 | **Firewall** (gate definitions + the predictions, **before** the tabulation) | mission-control `2b72e3e` | 2026-07-13 16:42 |
 | **Delivered** (the count) | mission-control `b2c5355` | 2026-07-13 16:52 |
 
-The firewall commit is an ancestor of the delivery commit; the same caveat as above applies (precedence
-rests on commit order, and no commit can prove nobody peeked). And the prediction that was frozen in
-`2b72e3e` **was an argument against ourselves**: our own comfortable framing was *"the walls killed us"*,
+The firewall commit is an ancestor of the delivery commit — by **ten minutes**, the tightest gap in this
+repository, and it sits on its strongest piece. So be exact about what it buys, because the honest answer
+is *narrower* than it looks, and stronger than the timestamp suggests.
+
+We had not merely *seen* the eighteen outcomes. We had **lived** them — every one of those deaths was ours,
+and we knew them by heart. No firewall could claim otherwise and this one does not. What `2b72e3e` froze,
+before the tabulation, is the thing that could actually have been rigged: **the gate definitions** —
+including the contestable choice to put latency inside G0, which is precisely where a sceptic should press
+— **and the predicted result of the count**. Committing those first means we could not keep adjusting the
+definition until the tally came out the way we wanted.
+
+> This firewall is a defence against **definition-tuning**, not against knowledge. That is a narrower claim
+> than "we were blind", and it is the only one the record supports. It is also the one that matters: with
+> all eighteen outcomes already known, definition-tuning was the *only* degree of freedom we had left.
+
+And the prediction frozen in `2b72e3e` **was an argument against ourselves**: our own comfortable framing
+was *"the walls killed us"*,
 and the pre-registered prediction said the opposite — that the walls would turn out to be a **minority**,
 and the dominant killer would be upstream. Four of four pre-committed predictions held, that one included.
 **We bet against our own story and lost the bet.**
@@ -261,7 +275,15 @@ corretto il claim in `METHOD.md` che diceva altrimenti (`incident-log.md`, Entry
 **Cosa le ha uccise davvero (scala G0–G3).** Ogni morte è taggata col **primo** gradino non superato.
 G0 = l'edge lordo esiste? (non è un muro: è assenza di materia prima) · G1 = muro bad-print · G2 =
 muro costo · G3 = muro fisco. **La scala stessa è stata firewallata** (definizioni dei gate + predizioni
-committate *prima* della tabulazione: mission-control `2b72e3e` → `b2c5355`), e la predizione congelata
+committate *prima* della tabulazione: mission-control `2b72e3e` → `b2c5355`, dieci minuti — il gap più
+stretto del repo). Sii esatto su cosa prova, perché è **più stretto** di quel che sembra e più forte del
+timestamp: i 18 esiti non li avevamo solo *visti*, li avevamo **vissuti** — erano nostri, li sapevamo a
+memoria, e nessun firewall può pretendere il contrario. Ciò che `2b72e3e` congela, prima della tabulazione,
+è l'unica cosa che si sarebbe potuta truccare: **le definizioni dei gate** — inclusa la scelta contestabile
+di mettere la latenza dentro G0, esattamente dove uno scettico deve premere — **e la predizione dell'esito
+del conteggio**. È una difesa contro il **definition-tuning**, non contro la conoscenza: claim più stretto
+di "eravamo ciechi", e l'unico che il record sostenga. Ed è quello che conta, perché con tutti e 18 gli
+esiti già noti il definition-tuning era **l'unico grado di libertà rimasto**. La predizione congelata, poi,
 era **contro di noi**: diceva che i muri sarebbero risultati una *minoranza*, contro il nostro stesso
 framing comodo ("ci hanno ucciso i costi"). 4 predizioni pre-impegnate su 4 hanno tenuto, quella
 inclusa: **abbiamo scommesso contro la nostra storia e perso la scommessa.** In un file la cui debolezza
