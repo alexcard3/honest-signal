@@ -19,6 +19,13 @@ noise-floor definition, the seeds, and — crucially — what result would count
 required a post-hoc choice is an invalid result, re-frozen and re-run. This kills
 the garden of forking paths at the root.
 
+Since v0.3 this mechanism is no longer a discipline: it is [`firewall.py`](firewall.py),
+a CI check that fails the build when a result is not backed by a pre-registration that
+provably came first and has not been edited since. It is installed on this repository,
+and it has already refused a pull request of ours. Of the mechanisms here it is the one
+that could be made mechanical — and, awkwardly, it is not the one we call the moat.
+Mechanism #2 is, and #2 is a fact about process that no tool can read from a git log.
+
 ### 2. Companion gate — independent byte-exact recompute
 The agent that runs the experiment (the "executor") never adjudicates it. A
 **second, independent agent** ("companion") re-implements the frozen recipe from

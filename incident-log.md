@@ -107,6 +107,109 @@ The method's own test is whether it turns on its authors. This entry is the answ
 
 ---
 
+## Entry 2 — the gate nearly shipped the failure it exists to prevent
+
+**When:** 2026-07-14, building v0.3 — the pre-registration gate, delivered as software
+([`firewall.py`](firewall.py)). Two defects were found in the gate itself before release.
+**Neither was found by the test suite**, and that is the entry.
+
+**The first: it said PASS when it should have said FAIL.** Rule (c) forbids editing a
+pre-registration after it is registered. The implementation compared the file's blob against
+the last commit — so an edit that was merely *saved*, and not yet committed, was invisible to
+it. Running the tool on this repository with its own pre-registration deliberately altered by
+one line, it printed:
+
+```
+[PASS] P-TOOL-1
+       note : registered; no result yet
+```
+
+A researcher who softened their own kill criterion and ran the gate would have been told they
+were clean. That is not a bug next to the mission — **it is the mission, failing.** The whole
+claim of this repository is that the defence is not good faith but that the artifact does not
+compile; here was the artifact compiling, on a file that had been quietly changed.
+
+It was not caught by a test, because a test only asks the questions its author already thought
+to ask. It was caught by **pointing the tool at ourselves and trying to cheat with it.**
+
+**The second: a laundering route we had reasoned about backwards.** The tool refused to follow
+renames, and we had written that down as *strictness*. Adversarial review inverted it in one
+line: not following renames is not strictness, it is **blindness**. The recipe is three
+commands — draft the pre-registration somewhere else, tune it once you have seen the result,
+`git mv` it into place — and the tuned text acquires a fresh, innocent-looking registration
+commit that provably precedes the verdict. Worse, whether the tool caught this **depended on
+the `diff.renames` setting in the user's own git config**: fail-closed on one laptop,
+fail-open on another. A tool that sells determinism cannot do that.
+
+**And the first fix for it did not work.** The obvious repair — pin rename detection on — is
+wrong, for a reason no one involved predicted: `git log --diff-filter=A -- <path>` applies the
+pathspec *before* rename detection, so the delete half of the rename is filtered out, the pair
+is never made, and the moved file still reports as an addition. The tool kept passing. It took
+a test that ran the same scenario under **both** git configurations to show that the fix was
+cosmetic. The working repair inspects the full diff of the commit, not the path-filtered one.
+
+**The third: its verdict depended on the operator's locale.** Python's `subprocess` decodes with
+the machine's locale encoding unless told otherwise. On Linux that is UTF-8 and everything worked.
+On Windows it is cp1252, and the tool **crashed outright** on any pre-registration containing an
+accented character or an em-dash. It surfaced the moment we pointed the gate at our own research
+history, which is written in Italian — so the first people it would have broken for are the ones
+who wrote it, and after them every adopter who does not write in English.
+
+> **A gate whose verdict depends on the operator's locale is not a gate.**
+
+UTF-8 is now pinned explicitly. This one is worth naming because it is not a subtle logic flaw:
+it is the ordinary, boring kind of defect that ships when a tool is only ever run in the
+environment its author happens to have.
+
+**Why it matters.** Entry 0 was an AI fabricating a verification. Entry 1 was humans overstating
+their own rigour with nobody lying. Entry 2 is **the enforcement mechanism itself** being wrong
+in the direction that would have let both of them through. There is no level at which you get to
+stop checking — and the ordering is not an accident:
+
+> **Tests check what you thought of.**
+> **Dogfooding checks what you didn't.**
+> **The red-team checks what you were wrong about.**
+
+Four defects, three mechanisms, on the same 500 lines of code, in the same afternoon — and the
+test suite, run alone, would have caught **none of them**. It would have been green, and v0.3
+would have shipped a gate that says PASS to an edited pre-registration, PASS to a laundered one,
+and crashes on a pre-registration written in Italian.
+
+**Resolution.** Rule (c) now reads the working tree as well as the commit record: an uncommitted
+edit is still an edit. A pre-registration that arrives at its path by rename now fails closed,
+deterministically, regardless of the reader's git config — and there is a test that runs under
+`diff.renames=true` and `diff.renames=false` and fails if the two ever disagree. Encoding is
+pinned to UTF-8. Every defect above is now a failing test with the reason written above it.
+
+**The attack we did not close, and cannot.** You can always write a pre-registration you have
+already tuned, and commit it fresh, at the right path, before the result. Nothing in git
+distinguishes that from an honest one. **No tool does.** We are publishing the recipe rather
+than letting you find it: the gate makes retrofitting visible and expensive, and it does not
+make anyone honest. It never did.
+
+**Coda — the gate bound its own authors the same afternoon, on a triviality, against our will.**
+
+While building the tool we wanted to change the pre-registration file format: YAML needs a
+third-party parser, and Python's standard library ships a TOML one. Cleaner, one dependency
+fewer. A cosmetic improvement, decided hours after `P-TOOL-1` was committed, with no outcome
+known to anyone and nothing whatsoever to gain by cheating.
+
+**We could not do it.** Changing the format means editing `P-TOOL-1.md`, and editing a
+pre-registration fails rule (c) — the rule we had just written, in the tool we were building,
+enforced by the CI we were about to install. The only route our own method allows is to
+withdraw the pre-registration in public and re-register it under a new id. For a serialization
+format, that price was not worth paying. So the file stays in YAML, and the tool carries a
+dependency it did not need, because **the firewall said no.**
+
+That is a small thing, and we are keeping it precisely because it is small:
+
+> A firewall that binds you only when it is convenient is not a firewall.
+
+It bound us on a Tuesday, over a file format, when nothing was at stake — which is the only
+proof available that it will bind us when something is.
+
+---
+
 *New entries are appended here as they occur. A method that hides its own misses is
 not honest; this log is where honest-signal keeps itself honest.*
 
@@ -141,3 +244,46 @@ insidioso, perché non c'è un colpevole da beccare. **La difesa non è la buona
 non compila.** Correzione: `METHOD.md` §4 graduato (il **16 resta** — nessun numero è cambiato), due
 limiti *aggiunti* al README, l'indice pubblicato con le celle vuote in chiaro, e la lezione promossa a
 **quinto meccanismo** (*la sostanziazione come gate*).
+
+**Entry 2 (2026-07-14):** costruendo la v0.3 — il gate di pre-registrazione **come software**
+(`firewall.py`) — abbiamo trovato **due difetti nel gate stesso**, e **nessuno dei due l'ha trovato
+la suite di test**. (1) La regola (c) vieta di editare una pre-registrazione dopo averla registrata:
+l'implementazione confrontava il blob solo col record committato, quindi un edit **salvato ma non
+committato** era invisibile. Puntando il tool su questo repo, con la nostra stessa P-TOOL-1 alterata
+di una riga, stampava `[PASS]`. Chi avesse ammorbidito il proprio criterio di kill si sarebbe sentito
+dire che era pulito: non è un bug accanto alla missione, **è la missione che fallisce**. L'ha trovato
+il **dogfooding** — puntare il tool su di noi e provare a barare. (2) Il tool non seguiva i rinomini e
+l'avevamo scritto come *severità*: la **review avversariale** l'ha ribaltato in una riga — non seguire
+i rinomini non è severità, è **cecità**. Ricetta di riciclaggio in tre comandi: scrivi la
+pre-registrazione altrove, accordala dopo aver visto il risultato, `git mv` al posto giusto → il testo
+accordato acquisisce un commit di registrazione fresco e anteriore al verdetto. Peggio: il
+comportamento **dipendeva dal `diff.renames` nel .gitconfig dell'utente** (fail-closed su un portatile,
+fail-open su un altro). **E la prima correzione non funzionava:** `git log --diff-filter=A -- <path>`
+applica il pathspec *prima* del rilevamento rinomini, quindi la metà "delete" viene filtrata via, la
+coppia non si forma e il file spostato continua a risultare un'aggiunta. L'ha smascherata un test che
+gira lo stesso scenario sotto **entrambe** le configurazioni git. (3) `subprocess` decodifica con
+l'encoding **locale**: su Linux è UTF-8 e tutto funzionava; su Windows è cp1252 e il tool **crashava**
+su qualunque pre-registrazione con un accento o una lineetta. È emerso puntando il gate sulla nostra
+storia di ricerca, che è scritta in italiano: i primi a cui si sarebbe rotto siamo **noi**, e subito dopo
+ogni adottante che non scrive in inglese. **Un gate il cui verdetto dipende dal locale dell'operatore non
+è un gate.** La lezione, nell'ordine in cui l'abbiamo
+imparata: **i test controllano ciò a cui hai pensato; il dogfooding controlla ciò a cui non hai pensato;
+il red-team controlla ciò su cui ti sbagliavi.** Entry 0 = l'AI ha mentito. Entry 1 = gli umani hanno
+gonfiato. Entry 2 = **il meccanismo di enforcement stesso** era sbagliato, nella direzione che avrebbe
+lasciato passare gli altri due. E l'attacco che **non** abbiamo chiuso, e che nessuno può chiudere:
+puoi sempre scrivere una pre-registrazione già accordata e committarla fresca, al path giusto, prima del
+risultato. Git non la distingue. **Nessun tool la distingue.** Ne pubblichiamo la ricetta invece di
+lasciartela scoprire: il gate rende il retrofitting visibile e costoso, non rende onesti.
+**Coda — lo stesso pomeriggio il gate ha legato i propri autori, su una banalità, contro la loro
+volontà.** Volevamo cambiare il formato del frontmatter (YAML richiede un parser di terze parti; la
+stdlib di Python ne ha uno per TOML): una dipendenza in meno, un miglioramento cosmetico, deciso poche
+ore dopo il commit di `P-TOOL-1`, con nessun esito noto a nessuno e nulla da guadagnare barando.
+**Non abbiamo potuto.** Cambiare formato significa editare `P-TOOL-1.md`, ed editare una
+pre-registrazione viola la regola (c) — la regola che avevamo appena scritto, nel tool che stavamo
+costruendo, imposta dalla CI che stavamo per installare. L'unica strada che il nostro stesso metodo
+consente è ritirarla in pubblico e ri-registrarla con un id nuovo: per una serializzazione, quel prezzo
+non valeva. Quindi il file resta in YAML e il tool si porta una dipendenza di cui non aveva bisogno,
+**perché il firewall ha detto no.** È una cosa piccola, e la teniamo proprio perché è piccola: **un
+firewall che ti lega solo quando ti fa comodo non è un firewall.** Ci ha legati di martedì, su un
+formato di file, quando non c'era nulla in gioco — che è l'unica prova disponibile del fatto che ci
+legherà quando qualcosa in gioco ci sarà.

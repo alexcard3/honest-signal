@@ -1,0 +1,42 @@
+name: "honest-signal firewall"
+description: >
+  Fail the build when a result claims an outcome that was never pre-registered - or whose
+  pre-registration does not provably precede it, has been edited since, or names no criterion
+  that could have killed it.
+author: "honest-signal"
+branding:
+  icon: shield
+  color: red
+
+inputs:
+  claims:
+    description: >
+      Claim ids to verify, space-separated. Default: every claim in the repository.
+    required: false
+    default: ""
+  python-version:
+    description: "Python to run the gate on (3.11 or later)."
+    required: false
+    default: "3.12"
+
+runs:
+  using: composite
+  steps:
+    # The gate reads the commit history: which commit introduced the pre-registration,
+    # which introduced the result, and whether the first strictly precedes the second.
+    # A shallow clone cannot answer that. `firewall` refuses to guess and exits 1 - so if
+    # this step fails with "shallow clone", set fetch-depth: 0 on actions/checkout, which
+    # is NOT the default.
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install the one dependency (you install nothing; the runner does)
+      shell: bash
+      run: python -m pip install --quiet --disable-pip-version-check pyyaml
+
+    - name: Run the firewall
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: python "$GITHUB_ACTION_PATH/firewall.py" verify ${{ inputs.claims }}
