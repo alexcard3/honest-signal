@@ -5,8 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  demo:
-    name: The companion gate catches a fabrication
+  demo:   # check context: "demo" -- referenced by branch protection. Do not rename.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -18,8 +17,7 @@ jobs:
       - name: Run the companion-gate demo (fails if the invariant breaks)
         run: python examples/synthetic_gate_demo/gate_demo.py
 
-  tests:
-    name: The gate bites (firewall test suite)
+  tests:  # check context: "tests" -- referenced by branch protection. Do not rename.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -31,8 +29,7 @@ jobs:
       - name: Run the tests, including the four ways the gate must FAIL
         run: python -m unittest discover -s tests -v
 
-  firewall:
-    name: This repository submits to its own gate
+  firewall:  # check context: "firewall" -- referenced by branch protection. Do not rename.
     runs-on: ubuntu-latest
     steps:
       # fetch-depth: 0 is not optional and not a default. Precedence is a fact about the
