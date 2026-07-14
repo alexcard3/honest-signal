@@ -1,10 +1,12 @@
-name: verify-gate-demo
+name: ci
 on:
   pull_request:
   push:
     branches: [main]
+
 jobs:
   demo:
+    name: The companion gate catches a fabrication
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,3 +17,35 @@ jobs:
         run: pip install numpy
       - name: Run the companion-gate demo (fails if the invariant breaks)
         run: python examples/synthetic_gate_demo/gate_demo.py
+
+  tests:
+    name: The gate bites (firewall test suite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyYAML
+        run: pip install pyyaml
+      - name: Run the tests, including the four ways the gate must FAIL
+        run: python -m unittest discover -s tests -v
+
+  firewall:
+    name: This repository submits to its own gate
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 is not optional and not a default. Precedence is a fact about the
+      # commit history; a shallow clone does not have one. `firewall` refuses to report a
+      # verdict it cannot see, rather than reporting a comfortable one.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # `uses: ./` runs the published action from this repository against this repository:
+      # the same code path an external adopter gets, not an internal shortcut. If a pull
+      # request here ever claims a result without a pre-registration that provably came
+      # first, has not been edited, and states what could have killed it - this job fails,
+      # and the pull request does not merge. That rule binds us first.
+      - name: firewall verify
+        uses: ./
