@@ -7,6 +7,79 @@
 
 ---
 
+## Quickstart — ten minutes
+
+> **Run it on *your* repo, where you can verify it.
+> We ran it on ours, and it failed us 14 times out of 18.**
+
+### 1. Watch the gate catch a fabrication — 30 seconds
+
+```bash
+cd examples/synthetic_gate_demo && python gate_demo.py     # needs numpy
+```
+
+An executor claims a discovery on pure noise. A second, independent implementation recomputes the
+number from the raw data and refuses it. Same mechanism catches an honest bug, because it judges
+reproducibility, not intent.
+
+### 2. Pre-register a hypothesis — 5 minutes
+
+Copy [`firewall.py`](firewall.py) into your repository, then:
+
+```bash
+pip install pyyaml
+python firewall.py preregister P-MY-1 --commit
+```
+
+It scaffolds the pre-registration, and then **refuses to commit it** until you have written a kill
+criterion with a number in it, a way to measure that number which a stranger could follow, and a
+date. It gives you the questions before it takes anything away — and an unanswerable question is
+the tool telling you that you do not have a hypothesis yet.
+
+### 3. Install the gate in your CI — 2 minutes
+
+```yaml
+- uses: actions/checkout@v7
+  with:
+    fetch-depth: 0            # NOT the default. Precedence is a fact about history,
+                              # and a shallow clone does not have one.
+- uses: alexcard3/honest-signal@v0.3
+```
+
+From now on, a pull request that claims a result **does not merge** unless a pre-registration for
+it exists, provably precedes it, has not been edited since, and names something that could have
+killed it.
+
+> **Why `@v0.3` and not `@main`?** Because `@main` is the most mutable reference there is: your CI
+> would change under your feet every time we push. A repository whose entire thesis is *"the
+> artifact must not move after the fact"* does not get to ask you to depend on a moving branch. Pin
+> the tag, or pin the commit SHA.
+
+### What it checks, and what it will never do
+
+| | |
+|---|---|
+| **(a)** a result must have a pre-registration | FAIL if missing |
+| **(b)** it must **strictly** precede the result | FAIL if the same commit, or later |
+| **(c)** it must not have been edited since | FAIL if the content changed |
+| **(d)** its kill criterion must not be vacuous | FAIL if there is no number, no procedure, no date |
+| **(e)** the gap between the two commits | **printed, never judged** — ours include 23 minutes |
+
+> **This does not make you honest. It makes retrofitting visible and expensive.**
+
+That is the same limit we state for the firewall everywhere else in this repository — *a guard
+against retrofitting, not a guarantee of blindness* — and installing it as software does not buy a
+stronger claim. You can still write a pre-registration you have already tuned and commit it, fresh
+and innocent, before the result. Git cannot tell that apart from honesty. **Neither can this tool,
+and neither can any other.** We publish the recipe in [`incident-log.md`](incident-log.md), Entry 2,
+rather than leave you to find it.
+
+**Want to watch it bite?** [PR #5](https://github.com/alexcard3/honest-signal/pull/5) claimed a
+tradeable edge with no pre-registration. CI went red, the pull request never merged, and we left it
+open in the record on purpose — [`examples/blocked-pr/`](examples/blocked-pr/).
+
+---
+
 ## EN — What this is
 
 honest-signal is a **method for keeping AI-assisted research honest** — so that an agent (or a human) cannot fool itself, or you, into believing a result that isn't there. It ships as five mechanisms, one runnable demo, an incident log of the time the method caught a fabrication in our own pipeline, and a full index of every hypothesis it killed.
@@ -21,15 +94,6 @@ We built it because we needed it. Three years of searching for a tradable edge i
 2. Have a **second, independent agent recompute the result byte-for-byte from the raw data** with its own code — never trusting the executor's report.
 
 That independent recompute is the moat. It already caught a real fabrication (see [`incident-log.md`](incident-log.md)).
-
-### Run the proof yourself (30 seconds, only needs numpy)
-
-```bash
-cd examples/synthetic_gate_demo
-python gate_demo.py
-```
-
-You'll watch the gate **confirm** an honest result and **catch** a fabricated "discovery" on pure-noise data — by recomputing from the raw data with independent code. That's the whole idea, self-contained and deterministic.
 
 ### Who this is for, and what you get
 
@@ -48,10 +112,41 @@ No performance claims, here or anywhere in this repo. Nothing in it will make yo
 
 - [`METHOD.md`](METHOD.md) — the five mechanisms, in full.
 - [`FALSIFICATIONS.md`](FALSIFICATIONS.md) — every hypothesis we killed: what was tested, what was committed before the data, what killed it.
+- [`firewall.py`](firewall.py) — the gate, as software. One file, stdlib plus PyYAML.
+- [`preregistrations/`](preregistrations/) — the template, and the pre-registration of this release.
+- [`examples/blocked-pr/`](examples/blocked-pr/) — a pull request the gate refused, kept in the record.
 - [`examples/synthetic_gate_demo/`](examples/synthetic_gate_demo/) — the runnable, dependency-light proof.
-- [`incident-log.md`](incident-log.md) — the fabrication the gate caught, and the time the method caught our own overstated claim.
+- [`incident-log.md`](incident-log.md) — the fabrication the gate caught, the time the method caught our own overstated claim, and the four defects we found in the gate itself.
 
-### Honest limits (v0.2)
+### We pre-registered this release, and here is what would kill it
+
+[`preregistrations/P-TOOL-1.md`](preregistrations/P-TOOL-1.md) was committed **before the first line
+of the tool was written**, and it is the first thing the gate gates. If, by **2026-09-08**, no
+external repository references the Action, no fork carries its own commits, and no substantive issue
+or pull request arrives from anyone who is not us, then the "usable tool" thesis is weak and we
+reconsider the lane. Stars do not count. Plain forks do not count. **Our pre-committed prediction is
+that we get killed** — the base rate for an unknown repository is zero, and saying so now means a NO
+cannot later be dressed up as *"we expected that anyway"*.
+
+There is a small, deliberate symmetry there worth naming: the line you paste into your workflow —
+`uses: alexcard3/honest-signal@v0.3` — **is the exact string the kill metric searches for**. The
+measurement and the artifact are the same object, so we cannot quietly move one without moving the
+other.
+
+### Honest limits (v0.3)
+
+- **The firewall compiles. The moat does not — and it cannot.** Mechanism #1 (pre-registration) is a
+  property of the git history, so a program can enforce it, and now one does, on every pull request
+  here. Mechanism #2 — the independent byte-exact recompute, the one we call the moat — is a fact
+  about *process*, not about a repository. No tool can read it from a git log. So the headline
+  **3 of 18** is still a number you are taking on our word, and we have ended up enforcing the
+  weaker mechanism while merely asserting the stronger one. That is the wrong way round, and it is
+  the true state of it.
+- **The gate is beatable and we publish how.** It catches a missing pre-registration, a late one, an
+  edited one, and an empty criterion. It cannot catch one you tuned before committing it. See
+  [`incident-log.md`](incident-log.md), Entry 2.
+- **Rule (d) is a linter, not a judge.** It checks that a criterion has a number, a procedure and a
+  date. It cannot tell you whether the thing you promised to measure means anything.
 
 - This is the **method**, not a market discovery. Our cartographic findings (regime structure, correlation erosion under stress) are, by our own assessment and the literature's, **incremental** — they confirm known facts (buy&hold dominates risk-adjusted; correlations rise in crises). They ship later as *demonstrations of the method*, not as news.
 - **Full reproduction on our real market data is not possible from outside** — the data lives in a private database and market feeds are generally not redistributable. So we ship a **synthetic, self-contained demo** anyone can re-run to verify the *mechanism*. Full reproduction of the market findings remains **open**, not solved: it would need a data export or a much richer synthetic case, and we have not done it. We will not call "reproducible" anything an outsider cannot re-run.
@@ -78,14 +173,68 @@ L'abbiamo costruito perché ci serviva. Tre anni di ricerca di un edge di mercat
 
 **La tesi che difendiamo.** La maggior parte degli articoli "l'AI replica le anomalie e nulla sopravvive" indurisce i guardrail *reattivamente*, dopo aver sbagliato. Noi facciamo due cose *prima* di guardare qualunque numero: (1) **pre-registriamo** la ricetta esatta e il criterio di falsificazione (un commit "firewall"); (2) un **secondo agente indipendente ricalcola il risultato byte-per-byte dal dato grezzo** con codice proprio, senza mai fidarsi del report dell'esecutore. Quel ricalcolo indipendente è il fossato — e ha già beccato una fabbricazione reale ([`incident-log.md`](incident-log.md)).
 
-### Prova tu stesso (30 secondi, serve solo numpy)
+### Quickstart — dieci minuti
+
+> **Fallo girare sul *tuo* repo, dove puoi verificarlo.
+> Noi l'abbiamo fatto girare sul nostro, e ci ha bocciati 14 volte su 18.**
+
+**1. Guarda il gate beccare una fabbricazione (30 secondi).**
 
 ```bash
-cd examples/synthetic_gate_demo
-python gate_demo.py
+cd examples/synthetic_gate_demo && python gate_demo.py     # serve numpy
 ```
 
-Vedrai il gate **confermare** un risultato onesto e **beccare** una "scoperta" fabbricata su dati di puro rumore, ricalcolando dal grezzo con codice indipendente. Tutto self-contained e deterministico.
+Un esecutore rivendica una scoperta su puro rumore. Una seconda implementazione indipendente
+ricalcola il numero dal grezzo e la rifiuta. Lo stesso meccanismo becca un bug onesto, perché
+giudica la riproducibilità, non l'intenzione.
+
+**2. Pre-registra un'ipotesi (5 minuti).** Copia [`firewall.py`](firewall.py) nel tuo repo:
+
+```bash
+pip install pyyaml
+python firewall.py preregister P-MIA-1 --commit
+```
+
+Scaffolda la pre-registrazione e poi **si rifiuta di committarla** finché non hai scritto un criterio
+di kill con dentro un numero, un modo di misurarlo che un estraneo potrebbe seguire, e una data. Ti
+dà le domande prima di toglierti qualcosa — e una domanda a cui non sai rispondere è il tool che ti
+dice che **non hai ancora un'ipotesi**.
+
+**3. Installa il gate nella tua CI (2 minuti).**
+
+```yaml
+- uses: actions/checkout@v7
+  with:
+    fetch-depth: 0            # NON è il default. La precedenza è un fatto sulla storia,
+                              # e un clone shallow non ce l'ha.
+- uses: alexcard3/honest-signal@v0.3
+```
+
+Da qui in poi, una PR che rivendica un risultato **non mergia** se non esiste una pre-registrazione
+che lo precede dimostrabilmente, non è stata modificata dopo, e nomina qualcosa che avrebbe potuto
+ucciderlo.
+
+> **Perché `@v0.3` e non `@main`?** Perché `@main` è il riferimento **più mutabile che esista**: la
+> tua CI cambierebbe sotto i piedi a ogni nostro push. Un repository la cui tesi è *"l'artefatto non
+> deve muoversi dopo il fatto"* non può chiederti di dipendere da un branch mobile. Pinna il tag, o
+> pinna lo SHA.
+
+**Cosa controlla:** (a) un risultato deve avere una pre-registrazione; (b) questa deve precederlo
+**strettamente** (stesso commit = FAIL); (c) non deve essere stata modificata dopo; (d) il criterio di
+kill non dev'essere vacuo (niente numero, niente procedura, niente data = FAIL); (e) il **gap** fra i
+due commit si **stampa, non si giudica** — i nostri includono 23 minuti.
+
+> **Questo non ti rende onesto. Rende il retrofitting visibile e costoso.**
+
+È lo stesso limite che dichiariamo ovunque per il firewall (*una guardia contro il retrofitting, non
+una garanzia di cecità*), e installarlo come software non compra un claim più forte. Puoi sempre
+scrivere una pre-registrazione già accordata e committarla fresca, innocente, prima del risultato. Git
+non la distingue dall'onestà. **Nemmeno questo tool, e nemmeno nessun altro.** La ricetta la
+pubblichiamo noi (`incident-log.md`, Entry 2) invece di lasciartela scoprire.
+
+**Vuoi vederlo mordere?** [PR #5](https://github.com/alexcard3/honest-signal/pull/5) rivendicava un
+edge tradabile senza pre-registrazione: CI rossa, PR mai mergiata, lasciata apposta nel record
+([`examples/blocked-pr/`](examples/blocked-pr/)).
 
 ### A chi serve, e cosa ti dà
 
@@ -95,7 +244,28 @@ Cosa ti dà: (1) un **protocollo che non permette mai a un agente di certificare
 
 Nessun claim di performance, qui né altrove in questo repo. Niente di tutto ciò farà riuscire la tua ricerca: rende visibili i suoi fallimenti, prima e a costo minore.
 
-### Limiti onesti (v0.2)
+### Limiti onesti (v0.3)
+
+**Il firewall compila. Il fossato no — e non può.** Il meccanismo #1 (pre-registrazione) è una
+proprietà della storia git: un programma lo può imporre, e ora lo fa a ogni PR. Il meccanismo #2 — il
+ricalcolo indipendente byte-esatto, quello che chiamiamo **il moat** — è un fatto di *processo*, non di
+un repository: nessun tool lo legge da un git log. Quindi il **3 su 18** resta un numero sulla nostra
+parola, e siamo finiti a imporre il meccanismo più debole e a limitarci ad *asserire* il più forte. È
+l'ordine sbagliato, ed è com'è davvero.
+
+**Il gate è battibile, e pubblichiamo come.** Becca una pre-registrazione mancante, tardiva, modificata,
+o con un criterio vuoto. Non becca quella che hai accordato *prima* di committarla (`incident-log.md`,
+Entry 2). **La regola (d) è un linter, non un giudice:** verifica che un criterio abbia un numero, una
+procedura e una data; non può dirti se la cosa che hai promesso di misurare significhi qualcosa.
+
+**Abbiamo pre-registrato anche questa release** ([`preregistrations/P-TOOL-1.md`](preregistrations/P-TOOL-1.md),
+committata **prima della prima riga di codice del tool**): se al **2026-09-08** nessun repo esterno
+referenzia l'Action, nessun fork porta commit propri e nessuna issue/PR sostanziale arriva da chi non
+siamo noi, la tesi "tool usabile" è debole e si riconsidera. Le star non contano, i fork-segnalibro non
+contano. **La nostra predizione pre-impegnata è che veniamo uccisi.** E c'è una simmetria voluta: la
+riga che incolli nel tuo workflow — `uses: alexcard3/honest-signal@v0.3` — **è esattamente la stringa
+che la metrica di kill va a cercare.** Misura e artefatto sono lo stesso oggetto: non possiamo spostare
+l'una senza spostare l'altro.
 
 Questo è il **metodo**, non una scoperta di mercato (i nostri reperti cartografici sono incrementali per nostra stessa ammissione; ci collochiamo *dentro* una lineage esistente — López de Prado, registered reports, l'ondata 2026 di harness anti-fabbricazione — un aspetto che troviamo sotto-servito, non una scoperta solitaria). La riproduzione piena sui dati di mercato reali non è possibile dall'esterno (DB privato, feed non ridistribuibili): spediamo una **demo sintetica** ri-eseguibile da chiunque per verificare il *meccanismo*. Non chiameremo "riproducibile" ciò che un esterno non può ri-eseguire.
 

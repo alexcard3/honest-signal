@@ -9,8 +9,8 @@ jobs:
     name: The companion gate catches a fabrication
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install numpy
@@ -22,8 +22,8 @@ jobs:
     name: The gate bites (firewall test suite)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install PyYAML
@@ -38,7 +38,7 @@ jobs:
       # fetch-depth: 0 is not optional and not a default. Precedence is a fact about the
       # commit history; a shallow clone does not have one. `firewall` refuses to report a
       # verdict it cannot see, rather than reporting a comfortable one.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
