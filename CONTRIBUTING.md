@@ -27,7 +27,7 @@ method holds itself to.
    contributor's word (that is the method).
 
 ## Scope
-v0.1 is the *method* (the four mechanisms + a synthetic demo), not a market discovery.
+This repo is the *method* (the five mechanisms + a synthetic demo + the index of what it killed), not a market discovery.
 Contributions that sharpen the method, its clarity, or its reproducibility are most
 welcome. Market "edge" proposals are out of scope — that search is closed, with evidence.
 

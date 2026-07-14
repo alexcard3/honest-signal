@@ -8,7 +8,8 @@ result "passes", or simply **report a verification that never ran**. Backtest
 overfitting is the finance-specific name; self-deception is the general one. In
 2026 this became a first-order concern for autonomous agents (fabricated success,
 "scheming", plausible-but-wrong numeric checks). honest-signal is our working,
-battle-tested answer, distilled to four mechanisms.
+battle-tested answer, distilled to five mechanisms. The fifth we learned the hard
+way — from this method catching *us*.
 
 ### 1. Pre-registration firewall
 Before any number is computed, the exact recipe and the falsification criterion
@@ -40,9 +41,39 @@ diverge? Every unpinned degree of freedom is a place a result can be un-reproduc
 ### 4. Neutral falsification counter + honesty-from-defeat
 Measurement probes (cartography) never touch the "edge" counter; only genuine
 edge claims do. And a **NO is a first-class deliverable**: we certify dead
-hypotheses instead of quietly dropping them. Killing 16 of our own favorites,
-with byte-exact reproduction, is not a consolation prize — it is the evidence that
-the method works (it kills real edges), and the moat is precisely that honesty.
+hypotheses instead of quietly dropping them. Killing 16 of our own favorites is not
+a consolation prize — it is the evidence that the method bites.
+
+But the mechanisms above were not all in force from day one, and we will not backdate
+them. The independent byte-exact companion gate became protocol partway through
+(2026-06-25); the earlier kills were checked with determinism — pinned seeds and BLAS,
+byte-identical re-runs, published output hashes — which is good practice, but is not a
+second pair of eyes. [`FALSIFICATIONS.md`](FALSIFICATIONS.md) states, for every one of
+the eighteen, what actually verified it, what was committed before the data, and what
+killed it. The count of 16 stands; the claim that all 16 were verified with equal
+severity did not, and we graded it down rather than restate it — see
+[`incident-log.md`](incident-log.md), Entry 1.
+
+### 5. Substantiation as a gate
+**A claim you cannot tabulate row by row, with the evidence beside each row, is a claim
+you have not verified.** We learned this on ourselves. "16 falsifications, byte-exact"
+went unchallenged for as long as it stayed a *number* — including by us. The moment we
+tried to build the index — one row per hypothesis, one cell per hash — fourteen of the
+eighteen rows had nothing to put in the cell. Nobody had lied. The artifact simply did
+not compile.
+
+So: before a claim ships, force it into a shape where every element must carry its own
+evidence. **The table is the test.** An empty cell is not a formatting problem — it is
+the claim telling you it was never checked. Publish the empty cell; that is the whole
+mechanism. It is the cheapest of the five and it caught the biggest thing.
+
+### What killed the eighteen — the G0–G3 scale
+Every falsification in [`FALSIFICATIONS.md`](FALSIFICATIONS.md) is tagged with the first
+gate it failed: **G0** (was there a real gross edge at all?), **G1** (bad prints), **G2**
+(the cost wall), **G3** (the tax wall). The finding — which contradicted our own comfortable
+framing, so we pre-registered the opposite and tabulated it — is that **G0 accounts for ~13–14
+of the 18**. The dominant killer is not the walls; it is the absence of an edge to defend.
+The scale, and why it transfers to anyone else's strategy, is set out at the end of that file.
 
 ### Determinism
 Everything is deterministic: pinned seeds, pinned BLAS/threading, pinned percentile
@@ -59,6 +90,8 @@ side: the 2026 wave of anti-fabrication harnesses and verification gates for
 autonomous agents, and pre-registration proposals for AI experiments. Our specific
 delta is mechanism **#2** applied *a priori* together with **#1**: an independent
 byte-exact recompute, pre-registered, that has caught a real fabrication.
+([`FALSIFICATIONS.md`](FALSIFICATIONS.md) records how many hypotheses went through
+both, and when.)
 
 ---
 
@@ -69,7 +102,8 @@ auto-ingannarsi — scegliere il test dopo aver visto i dati, indurire una regol
 finché un risultato "passa", o **riportare una verifica mai avvenuta**. L'overfitting
 del backtest è il nome finanziario; l'auto-inganno è quello generale. Nel 2026 è
 diventato un problema di prim'ordine per gli agenti autonomi. honest-signal è la
-nostra risposta funzionante, distillata in quattro meccanismi.
+nostra risposta funzionante, distillata in cinque meccanismi. Il quinto l'abbiamo
+imparato nel modo duro: da questo metodo che ha beccato *noi*.
 
 1. **Firewall di pre-registrazione** — ricetta esatta + criterio di falsificazione
    committati PRIMA di calcolare qualunque numero (universo, finestre, stimatore,
@@ -88,8 +122,24 @@ nostra risposta funzionante, distillata in quattro meccanismi.
    punto dove un risultato diventa non-riproducibile "senza che nessuno menta".
 4. **Contatore falsificazioni neutro + onestà-dalla-sconfitta** — le sonde di misura
    non toccano il contatore "edge"; un NO è un deliverable di prima classe. Uccidere
-   16 propri beniamini con riproduzione byte-esatta non è un premio di consolazione: è
-   la prova che il metodo funziona, e il fossato è quell'onestà.
+   16 propri beniamini non è un premio di consolazione: è la prova che il metodo morde.
+   **Ma i meccanismi sopra non erano tutti in vigore dal primo giorno, e non li
+   retrodatiamo:** il gate companion byte-esatto diventa protocollo a metà strada
+   (2026-06-25); le morti precedenti furono verificate col determinismo (seed/BLAS
+   pinnati, re-run byte-identici, hash pubblicati) — buona pratica, non un secondo paio
+   d'occhi. `FALSIFICATIONS.md` dichiara, per tutte e diciotto, cosa le ha davvero
+   verificate. Il conteggio di 16 regge; il claim che tutte e 16 fossero verificate con
+   pari severità no — l'abbiamo graduato invece di ribadirlo (`incident-log.md`, Entry 1).
+5. **La sostanziazione come gate** — **un claim che non sai tabulare riga per riga, con
+   l'evidenza accanto a ogni riga, è un claim che non hai verificato.** L'abbiamo imparato
+   su di noi: "16 falsificazioni, byte-esatte" è rimasto incontestato finché è rimasto un
+   *numero* — anche da parte nostra. Nel momento in cui abbiamo provato a costruire
+   l'indice (una riga per ipotesi, una cella per hash), **quattordici righe su diciotto
+   non avevano nulla da mettere nella cella.** Nessuno aveva mentito: semplicemente
+   l'artefatto non compilava. Quindi: prima che un claim esca, costringilo in una forma
+   in cui ogni elemento deve portare la propria evidenza. **La tabella è il test.** Una
+   cella vuota non è un problema di formattazione: è il claim che ti dice che non è mai
+   stato verificato. Pubblica la cella vuota.
 
 **Determinismo:** seed/threading/percentile/RNG pinnati — la riproduzione byte-esatta
 ha senso solo se la pipeline è byte-stabile.
@@ -99,7 +149,8 @@ su PBO/DSR; Hou-Xue-Zhang, Chen-Zimmermann sulle anomalie che non sopravvivono;
 registered reports / Institute for Replication; e l'ondata 2026 di harness
 anti-fabbricazione per agenti). Il nostro delta specifico è il meccanismo #2 applicato
 *a priori* insieme al #1: un ricalcolo indipendente byte-esatto, pre-registrato, che
-ha beccato una fabbricazione reale.
+ha beccato una fabbricazione reale. (`FALSIFICATIONS.md` registra quante ipotesi sono
+passate da entrambi, e da quando.)
 
 ---
 
