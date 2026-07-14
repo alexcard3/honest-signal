@@ -94,7 +94,14 @@ Three of the four firewalled rows were pre-registered and adjudicated **on the s
 | 14 `P-WPROBE-1` | 2026-06-25 00:51 | 2026-06-25 01:52 | 61 min |
 | 15 `P-CARRY-1` | 2026-06-25 08:46 | 2026-06-25 09:09 | **23 min** |
 | 17 `P-SHOCK-1` | 2026-06-29 21:45 | 2026-06-29 22:56 | 71 min |
-| 18 `P-CTSM-1` | 2026-07-07 | 2026-07-13 | 6 days |
+| 18 `P-CTSM-1` | 2026-07-07 15:24 | 2026-07-13 | **5.7 days** |
+
+> This table used to say **6 days** in the last row. It now says 5.7, because the column is
+> computed from the commit timestamps by [`scripts/audit_history.py`](scripts/audit_history.py)
+> rather than read off a calendar by eye. Nobody was cheating; someone subtracted two dates. It
+> is a small correction and we are flagging it rather than quietly restating the number, because
+> of what it says about the cross-check: **a cross-check that never contradicts you has no power.**
+> This one contradicted us exactly once, and the machine was right.
 
 Twenty-three minutes is the number a sceptic will find, so here it is from us. **Precedence rests on
 commit order, not on the calendar date**: git orders the two commits, and the probes are scripted runs
@@ -110,6 +117,84 @@ But we should be exact about what that buys, because it is less than it looks:
 The mechanism that does *not* depend on our restraint is the other one — the independent recompute
 (#2) — because it does not care what the executor knew, saw, or intended. That is why we treat the
 companion gate, not the firewall, as the moat.
+
+## The evidence in this file is now generated — except the part that cannot be
+
+Everything above was, until v0.3, **written by hand**. Hand-written evidence is exactly the thing
+this repository exists to distrust: [`incident-log.md`](incident-log.md) Entry 1 is the record of a
+hand-written claim of ours that did not survive contact with its own table.
+
+So we pointed the tool at ourselves. [`firewall.py`](firewall.py) — the same gate that now blocks
+pull requests in this repository — was run over the private histories by
+[`scripts/audit_history.py`](scripts/audit_history.py). From here on, the `Pre-registration` column
+cannot drift away from the commits: it is regenerated from them.
+
+**What the machine says, and where it disagreed with us:**
+
+| | Hand-written | Machine, from the git record |
+|---|---|---|
+| Firewall commit that provably precedes | rows 14, 15, 17, 18 | rows 14, 15, 17, 18 — **agree** |
+| Prediction and verdict in one commit | rows 13, 16 | rows 13, 16 — **agree** |
+| No commit at all | rows 1–12 | rows 1–12 — **agree** |
+| Gap, row 18 | 6 days | **5.7 days — disagree, and the machine was right** |
+
+### Rule (c) — immutability — under two rulers, reported separately and never merged
+
+`firewall` demands one pre-registration per file, so that immutability is a blob hash: a thing you
+cannot argue with. **Our own history does not meet that standard**, and the reason is not a
+technicality we get to wave away — it is why the evidence for our four firewalled rows is weaker
+than the evidence we now demand from everyone else.
+
+- **The strong ruler — file-granular blob immutability: `n/a` on all four.** Our pre-registrations
+  live as sections of a single append-only ledger, whose blob changes every time *some other* claim
+  is registered. Under the strong ruler all four rows would fail, for a reason that has nothing to
+  do with retrofitting. Reporting that as a failure would be as dishonest as reporting it as a pass.
+- **The weak ruler — did the claim's own section survive to the verdict?** This is real evidence and
+  **we had never looked at it**. It is weaker than the strong ruler because it rests on parsing
+  section boundaries rather than on a hash. We looked. Here is what came back, verbatim, from the
+  machine — the lines that did *not* survive between the firewall commit and the verdict commit:
+
+```
+P-WPROBE-1   3 registered lines did not survive verbatim
+             did not survive: **Stato:** open
+             did not survive: **Verificata il:** —
+             did not survive: **Esito reale:** —
+P-CARRY-1    (identical three lines)
+P-SHOCK-1    (identical three lines)
+P-CTSM-1     1 registered line did not survive verbatim
+             did not survive: **Stato:** **open — PRE-run, nessuna posizione, nessun capitale.**
+```
+
+Those are the **empty outcome slots** — the fields an adjudication exists to fill in. Not one line
+of hypothesis, threshold, kill criterion or prediction was altered, in any of the four. **Under the
+weak ruler: 4 of 4. The registered text survived the verdict verbatim.**
+
+We are printing the lines rather than the count, and you should notice why. "Three lines changed,
+but they were only status fields" is an *assertion* — and this repository has already published one
+correction for exactly that move. The claim "4 of 4" is worth nothing unless you can read what
+changed and decide for yourself. So: read them.
+
+### The firewall compiles. The moat does not — and it cannot.
+
+This is the most important sentence in v0.3, so it is not in a footnote.
+
+| Column | Generated? |
+|---|---|
+| `Pre-registration` — state, hash, strict precedence, gap | **Machine.** Regenerated from the git record. |
+| `Independent check` — the companion gate | **Human.** Not a git fact. No tool can read it. |
+| `What was tested`, `Verdict — why it died` | **Human.** Prose, and it stays prose. |
+
+Mechanism #1 is a property of the commit history, so a program can enforce it — and now one does,
+on every pull request here. Mechanism #2, the independent byte-exact recompute, is the one we call
+the moat, and it is **a fact about process, not about a repository**: whether a second agent really
+re-derived the number from the raw data with its own code is not written anywhere git can see.
+
+So the **3 of 18** remains a number you are taking on our word. We have made the weaker mechanism
+verifiable and left the stronger one unverifiable, which is the opposite of the order anyone would
+choose — but it is the honest state of the thing, and dressing it up would be the same error as
+Entry 1, committed twice. Whether independence can be made machine-attestable at all (a different
+git author, a separate CI job, a signed attestation) is an open problem. It is not solved here, and
+we are not going to imply that it is.
 
 ### A note on this file's format
 
@@ -142,6 +227,11 @@ with no upside. The facts that matter, including every uncomfortable one, are in
 - **The full protocol — both mechanisms, end-to-end — has been applied to 3 of the 18.** Rows 14, 17
   and 18, all after 2026-06-25. That is the true age of the thing we are publishing. We state it here
   rather than let you infer it from the table.
+- **The `3 of 18` is the one number in this file a machine cannot check.** The `Pre-registration`
+  column is now regenerated from the git record; the `Independent check` column is not, because
+  independence is a fact about process and not about a repository. We can enforce the mechanism we
+  call weaker and merely assert the one we call the moat. That is an uncomfortable asymmetry, and it
+  is the honest one.
 - **The underlying data is not redistributable.** Market data lives in a private database under feed
   terms that forbid redistribution. You cannot re-run these studies from this repo. What you *can*
   re-run is the mechanism: [`examples/synthetic_gate_demo/`](examples/synthetic_gate_demo/).
@@ -265,6 +355,46 @@ ipotesi su 18** (righe 14, 17, 18; tutte dopo il 2026-06-25). Incrociando le due
 quel numero si ricava da soli: preferiamo darvelo noi. È il protocollo che eseguiamo **ora**, su tutto;
 non è ciò che possiamo rivendicare retroattivamente sulle diciotto. Un protocollo giovane e datato con
 precisione è credibile; uno retrodatato no.
+
+**L'evidenza di questo file adesso è GENERATA — tranne la parte che non può esserlo.** Fino alla v0.3
+era scritta a mano, e l'evidenza scritta a mano è esattamente ciò che questo repo esiste per
+diffidare (`incident-log.md`, Entry 1). Quindi abbiamo puntato il tool su di noi: `firewall.py` — lo
+stesso gate che ora blocca le PR in questo repository — girato sulle storie private da
+`scripts/audit_history.py`. La colonna `Pre-registration` non può più divergere dai commit: la
+rigenera il record.
+
+La macchina **ha riprodotto** la tabella scritta a mano (4 firewall / 2 stesso-commit / 12 nessun
+commit) e **ci ha contraddetti su una cella**: il gap della riga 18 era "6 giorni" a occhio sul
+calendario; dai timestamp dei commit è **5,7 giorni**. Nessuno stava barando: qualcuno aveva sottratto
+due date. Lo segnaliamo invece di ribadire il numero in sordina, per ciò che dice sul cross-check:
+**un cross-check che non ti contraddice mai non ha alcun potere.** Questo ci ha contraddetti una volta,
+e aveva ragione lui.
+
+**Regola (c) — immutabilità — sotto DUE metri, riportati separatamente e mai fusi.** `firewall` pretende
+una pre-registrazione per file, così l'immutabilità è un hash: una cosa con cui non si discute. **La
+nostra storia non soddisfa quello standard** — e non è un cavillo: è *il motivo* per cui l'evidenza
+delle nostre quattro righe firewallate è più debole di quella che oggi pretendiamo da chiunque altro.
+*Metro forte* (blob, granularità-file): **`n/a` su tutte e quattro** — le nostre pre-registrazioni sono
+sezioni di un unico ledger append-only, il cui blob cambia ogni volta che si registra *un altro* claim;
+sotto il metro forte fallirebbero tutte, per una ragione che col retrofitting non c'entra. Riportarlo
+come FAIL sarebbe disonesto quanto riportarlo come PASS. *Metro debole* (la sezione del claim è
+sopravvissuta al verdetto?): è evidenza vera, e **non l'avevamo mai guardata**. L'abbiamo guardata. Le
+righe che *non* sono sopravvissute fra commit-firewall e commit-verdetto sono, in tutte e quattro,
+**gli slot vuoti dell'esito** (`**Stato:** open`, `**Verificata il:** —`, `**Esito reale:** —`) — i campi
+che l'aggiudicazione esiste per riempire. **Nessuna riga di ipotesi, soglia, criterio di kill o
+predizione è stata toccata. Metro debole: 4 su 4.** Pubblichiamo le righe e non il conteggio, e vale la
+pena notare perché: *"tre righe cambiate, ma erano solo campi di stato"* è un'**asserzione** — e questo
+repo ha già pubblicato una correzione esattamente per quella mossa.
+
+**Il firewall adesso compila. Il fossato no — e non può.** La colonna `Pre-registration` (stato, hash,
+precedenza stretta, gap) è un fatto git: un programma la può imporre, e ora lo fa a ogni PR. La colonna
+`Independent check` — il gate companion, quello che chiamiamo **il moat** — **non è un fatto git**: è un
+fatto di *processo*. Che un secondo agente abbia davvero ri-derivato il numero dal grezzo con codice
+proprio non è scritto da nessuna parte che git possa leggere. Quindi **il 3/18 resta un numero sulla
+nostra parola**. Abbiamo reso verificabile il meccanismo più debole e lasciato inverificabile il più
+forte: è l'ordine opposto a quello che chiunque sceglierebbe, ed è lo stato onesto della cosa. Se
+l'indipendenza sia rendibile attestabile a macchina (autore git diverso, job separato, attestazione
+firmata) è un **problema aperto**: qui non è risolto, e non lasceremo intendere il contrario.
 
 **"Riproduzione byte-esatta" non vale per tutte e 16.** Il ricalcolo indipendente da parte di un
 secondo agente è diventato protocollo a metà strada. Le morti precedenti sono state verificate con

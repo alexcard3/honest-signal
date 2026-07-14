@@ -148,6 +148,19 @@ is never made, and the moved file still reports as an addition. The tool kept pa
 a test that ran the same scenario under **both** git configurations to show that the fix was
 cosmetic. The working repair inspects the full diff of the commit, not the path-filtered one.
 
+**The third: its verdict depended on the operator's locale.** Python's `subprocess` decodes with
+the machine's locale encoding unless told otherwise. On Linux that is UTF-8 and everything worked.
+On Windows it is cp1252, and the tool **crashed outright** on any pre-registration containing an
+accented character or an em-dash. It surfaced the moment we pointed the gate at our own research
+history, which is written in Italian — so the first people it would have broken for are the ones
+who wrote it, and after them every adopter who does not write in English.
+
+> **A gate whose verdict depends on the operator's locale is not a gate.**
+
+UTF-8 is now pinned explicitly. This one is worth naming because it is not a subtle logic flaw:
+it is the ordinary, boring kind of defect that ships when a tool is only ever run in the
+environment its author happens to have.
+
 **Why it matters.** Entry 0 was an AI fabricating a verification. Entry 1 was humans overstating
 their own rigour with nobody lying. Entry 2 is **the enforcement mechanism itself** being wrong
 in the direction that would have let both of them through. There is no level at which you get to
@@ -157,15 +170,16 @@ stop checking — and the ordering is not an accident:
 > **Dogfooding checks what you didn't.**
 > **The red-team checks what you were wrong about.**
 
-Each of the three found something the other two missed, on the same 400 lines of code, in the
-same afternoon. If we had run only the tests, v0.3 would have shipped a gate that says PASS to
-an edited pre-registration and to a laundered one.
+Four defects, three mechanisms, on the same 500 lines of code, in the same afternoon — and the
+test suite, run alone, would have caught **none of them**. It would have been green, and v0.3
+would have shipped a gate that says PASS to an edited pre-registration, PASS to a laundered one,
+and crashes on a pre-registration written in Italian.
 
 **Resolution.** Rule (c) now reads the working tree as well as the commit record: an uncommitted
 edit is still an edit. A pre-registration that arrives at its path by rename now fails closed,
 deterministically, regardless of the reader's git config — and there is a test that runs under
-`diff.renames=true` and `diff.renames=false` and fails if the two ever disagree. Both defects
-are now failing tests with the reason written above them.
+`diff.renames=true` and `diff.renames=false` and fails if the two ever disagree. Encoding is
+pinned to UTF-8. Every defect above is now a failing test with the reason written above it.
 
 **The attack we did not close, and cannot.** You can always write a pre-registration you have
 already tuned, and commit it fresh, at the right path, before the result. Nothing in git
@@ -247,7 +261,12 @@ comportamento **dipendeva dal `diff.renames` nel .gitconfig dell'utente** (fail-
 fail-open su un altro). **E la prima correzione non funzionava:** `git log --diff-filter=A -- <path>`
 applica il pathspec *prima* del rilevamento rinomini, quindi la metà "delete" viene filtrata via, la
 coppia non si forma e il file spostato continua a risultare un'aggiunta. L'ha smascherata un test che
-gira lo stesso scenario sotto **entrambe** le configurazioni git. La lezione, nell'ordine in cui l'abbiamo
+gira lo stesso scenario sotto **entrambe** le configurazioni git. (3) `subprocess` decodifica con
+l'encoding **locale**: su Linux è UTF-8 e tutto funzionava; su Windows è cp1252 e il tool **crashava**
+su qualunque pre-registrazione con un accento o una lineetta. È emerso puntando il gate sulla nostra
+storia di ricerca, che è scritta in italiano: i primi a cui si sarebbe rotto siamo **noi**, e subito dopo
+ogni adottante che non scrive in inglese. **Un gate il cui verdetto dipende dal locale dell'operatore non
+è un gate.** La lezione, nell'ordine in cui l'abbiamo
 imparata: **i test controllano ciò a cui hai pensato; il dogfooding controlla ciò a cui non hai pensato;
 il red-team controlla ciò su cui ti sbagliavi.** Entry 0 = l'AI ha mentito. Entry 1 = gli umani hanno
 gonfiato. Entry 2 = **il meccanismo di enforcement stesso** era sbagliato, nella direzione che avrebbe

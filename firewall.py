@@ -103,12 +103,18 @@ FRONTMATTER = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
 
 
 def git(repo: Path, *args: str) -> str:
-    """Run git and return stdout. Raises on a git error, so a broken assumption is loud."""
+    """Run git and return stdout. Raises on a git error, so a broken assumption is loud.
+
+    UTF-8 is pinned. Python would otherwise decode with the machine's locale encoding, and
+    a pre-registration containing an accent would crash the tool on Windows and not on
+    Linux. A gate whose verdict depends on the operator's locale is not a gate.
+    """
     out = subprocess.run(
         ["git", "-C", str(repo), *args],
         capture_output=True,
-        text=True,
         check=True,
+        encoding="utf-8",
+        errors="replace",
     )
     return out.stdout.strip()
 
@@ -116,7 +122,10 @@ def git(repo: Path, *args: str) -> str:
 def git_ok(repo: Path, *args: str) -> bool:
     """Run git for its exit code alone (the ancestry test)."""
     return subprocess.run(
-        ["git", "-C", str(repo), *args], capture_output=True, text=True
+        ["git", "-C", str(repo), *args],
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
     ).returncode == 0
 
 
