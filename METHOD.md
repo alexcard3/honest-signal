@@ -109,6 +109,26 @@ byte-exact recompute, pre-registered, that has caught a real fabrication.
 ([`FALSIFICATIONS.md`](FALSIFICATIONS.md) records how many hypotheses went through
 both, and when.)
 
+### Where this applies — and where it does not
+The gate is only meaningful where a **claim is a prediction**, not a computation.
+It checks that a falsifiable statement was committed *before* the data that could
+refute it — so it has purchase on experiments, backtests, RCTs, and pre-registered
+agent runs, where the result could have come out otherwise. It has **little to offer
+where the "result" is a computation on already-published data** — a simulation, or a
+re-analysis of a fixed dataset — because there was no prior moment at which the
+outcome was still open, and so nothing for precedence to protect.
+
+We did not scope it this cleanly on our own. Konrad Hinsen (ReScience C / CNRS)
+reviewed it by email, **declined it for ReScience C** — whose domain is exactly that
+computational science, where pre-registration is not common practice — and in
+declining gave the sharpest description of it we have: *"a good surveillance tool, a
+bit like [Retraction Watch](https://retractionwatch.com/) but for pre-registrations."*
+A "no" that tells you who the tool is *not* for is worth more than a vague yes, so we
+record it as what it was — a decline, and a better compass than the one we shipped
+with. It was private correspondence in reply to our own outreach, not an unsolicited
+critique and not a GitHub issue, so it changes nothing in [`P-TOOL-1`](preregistrations/P-TOOL-1.md)'s
+adoption count.
+
 ---
 
 ## IT
@@ -173,6 +193,24 @@ anti-fabbricazione per agenti). Il nostro delta specifico è il meccanismo #2 ap
 *a priori* insieme al #1: un ricalcolo indipendente byte-esatto, pre-registrato, che
 ha beccato una fabbricazione reale. (`FALSIFICATIONS.md` registra quante ipotesi sono
 passate da entrambi, e da quando.)
+
+**Dove si applica — e dove no.** Il gate ha senso solo dove una **rivendicazione è
+una previsione**, non un calcolo. Verifica che un'affermazione falsificabile sia stata
+committata *prima* del dato che potrebbe smentirla: ha presa su esperimenti, backtest,
+RCT e run di agenti pre-registrati, dove il risultato sarebbe potuto uscire diverso. Ha
+**poco da offrire dove il "risultato" è un calcolo su dati già pubblicati** — una
+simulazione, o la rianalisi di un dataset fisso — perché non c'è stato un momento
+precedente in cui l'esito fosse ancora aperto, e quindi niente che la precedenza possa
+proteggere. Questo scoping non l'abbiamo trovato da soli: Konrad Hinsen (ReScience C /
+CNRS) l'ha esaminato via email, **l'ha declinato per ReScience C** — il cui dominio è
+esattamente quella scienza computazionale, dove la pre-registrazione non è pratica
+comune — e nel declinarlo ne ha dato la descrizione più nitida che abbiamo: *«un buon
+strumento di sorveglianza, un po' come [Retraction Watch](https://retractionwatch.com/)
+ma per le pre-registrazioni».* Un "no" che ti dice per chi il tool *non* è vale più di un
+"sì" vago: lo registriamo per ciò che era — un rifiuto, e una bussola migliore di quella
+con cui eravamo partiti. Era corrispondenza privata in risposta a un nostro contatto, non
+una critica spontanea né una issue GitHub, quindi non cambia nulla nel conteggio di
+adozione di [`P-TOOL-1`](preregistrations/P-TOOL-1.md).
 
 ---
 
