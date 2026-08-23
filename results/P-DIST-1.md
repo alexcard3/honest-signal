@@ -58,6 +58,30 @@ diagnoses and only the second one repeats. We record the second.
 A design fault worth naming, because it is correctable: the deadline was set inside a month the
 author already knew he would be away, and every act in the lane depended on one machine.
 
+#### Correction, 2026-08-23 — same day, before any external reader
+
+**The paragraph above is wrong.** It is left standing, unedited, so the correction can be read
+against it.
+
+Checked at source afterwards: on **2026-08-05**, inside the window, the author worked from
+**11:43 to 17:35** in the MetaNet repositories — four pull requests merged, pushes, CI runs — and
+again on 2026-08-06. He was on a laptop; the main machine was indeed unavailable. That detail
+does not rescue the claim. Connectivity and the ability to perform public online acts existed
+**six days before the deadline**: a Show HN post or an awesome-list pull request needs a browser,
+not that machine.
+
+The correct diagnosis is therefore **wider** than the one written above — not prioritised, over
+more of the window than we first said. One machine being unreachable explains the absence of
+some work; it does not explain the absence of the acts.
+
+How the error got in, since that is the part worth keeping: it was written from a verbal account
+and never checked against the commit record of a **second git identity**
+(`alexcard33@hotmail.com`), which the checks that were run — mail, and the public events of
+`alexcard3` — do not cover. **The gate did not catch this**, and could not: nothing in it reads
+other repositories. It was caught by routine work forty minutes after the merge. A gate bounds
+what it was built to bound, and the space outside those bounds is not smaller for having a gate
+inside them.
+
 ### Consequence
 
 Per `outcome_if_void`: **the lane is de-prioritised anyway.** A VOID records that we built
@@ -132,6 +156,30 @@ diverse, e solo la seconda si ripete. Registriamo la seconda.
 Un difetto di disegno che vale la pena nominare, perché è correggibile: la scadenza è stata
 fissata dentro un mese in cui l'autore sapeva già che sarebbe stato via, e ogni atto della lane
 dipendeva da una sola macchina.
+
+#### Correzione, 2026-08-23 — stesso giorno, prima di qualunque lettore esterno
+
+**Il paragrafo qui sopra è sbagliato.** Resta in piedi, non modificato, perché la correzione si
+possa leggere contro di lui.
+
+Verificato dopo, alla fonte: il **2026-08-05**, dentro la finestra, l'autore ha lavorato dalle
+**11:43 alle 17:35** nei repository MetaNet — quattro pull request mergiate, push, run di CI — e
+di nuovo il 2026-08-06. Era su un portatile; la macchina principale era davvero irraggiungibile.
+Quel dettaglio non salva l'affermazione. Connettività e capacità di compiere atti pubblici online
+c'erano **sei giorni prima della scadenza**: un post su Show HN o una pull request a una
+awesome-list richiedono un browser, non quella macchina.
+
+La diagnosi corretta è quindi **più ampia** di quella scritta sopra — non prioritizzato, su una
+porzione maggiore della finestra di quanto avessimo detto. Una macchina irraggiungibile spiega
+l'assenza di parte del lavoro; non spiega l'assenza degli atti.
+
+Come si è infilato l'errore, che è la parte che vale la pena conservare: è stato scritto da un
+racconto verbale e mai verificato contro il registro dei commit di una **seconda identità git**
+(`alexcard33@hotmail.com`), che i controlli eseguiti — la posta, e gli eventi pubblici di
+`alexcard3` — non coprono. **Il gate non l'ha catturato**, e non poteva: niente in lui legge
+altri repository. L'ha catturato il lavoro ordinario quaranta minuti dopo il merge. Un gate
+delimita ciò per cui è stato costruito, e lo spazio fuori da quei confini non è più piccolo per
+il fatto che dentro ci sia un gate.
 
 ### Conseguenza
 
